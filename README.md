@@ -1,2 +1,2 @@
 # Primaset
-Setting up a repository of primate skulls.
+Something else other than free primate skulls for the people.
