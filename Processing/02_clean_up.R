@@ -23,7 +23,7 @@ landmarks.that.matter <-
 prosimian.id <- ldply(prosimian.raw, function(L) data.frame(L $ id), .id = 'file')
 
 ### isso pesca todo mundo, acho
-all.missing.entries <- 
+all.missing.entries <-
     is.na(prosimian.id $ Tombo) |
     prosimian.id $ Tombo == '' |
     prosimian.id $ Tombo == '0' |
@@ -47,11 +47,11 @@ for(i in 1:length(prosimian.raw))
 {
     lms.to.keep <-
         which(dimnames(prosimian.raw [[i]] $ shapes) [[1]] %in% landmarks.that.matter)
-    
+
     prosimian.shapes [, , , ((10*i)-9):(10*i)] <-
         prosimian.raw [[i]] $ shapes [lms.to.keep, , , ]
 }
-               
+
 prosimian.shapes <- prosimian.shapes[, , , !all.missing.entries]
 
 ### ok, not ok (doubled entries)
@@ -110,11 +110,11 @@ prosimian.id <- prosimian.id [- still.double, ]
 
 prosimian.shapes <- prosimian.shapes [, , , - still.double]
 
-prosimian.id [prosimian.id $ Ind == 'AMNH100589', 'Ind'] <- 
+prosimian.id [prosimian.id $ Ind == 'AMNH100589', 'Ind'] <-
     paste0(prosimian.id [prosimian.id $ Ind == 'AMNH100589', 'Ind'],
            c('E', 'L'))
 
-prosimian.id [prosimian.id $ Ind == 'MNHNMO-1910-101', 'Ind'] <- 
+prosimian.id [prosimian.id $ Ind == 'MNHNMO-1910-101', 'Ind'] <-
     paste0(prosimian.id [prosimian.id $ Ind == 'MNHNMO-1910-101', 'Ind'],
            c('E', 'L'))
 
@@ -138,8 +138,10 @@ prosimian.id [strep.base %in% prosimian.id $ Ind, ]
 
 sum(prosimian.id $ Especie == 'Indri indri')
 
-
-
+dimnames(prosimian.shapes) <- list(landmarks.that.matter,
+                                   LETTERS[24:26],
+                                   paste0("take", 1:2),
+                                   paste(prosimian.id$Museu, prosimian.id$Tombo, sep = "_"))
 
 prosimian.cleanup <- list(prosimian.id, prosimian.shapes)
 
