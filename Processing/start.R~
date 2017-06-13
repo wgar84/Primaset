@@ -1,0 +1,30 @@
+require(devtools)
+require(roxygen2)
+require(plyr)
+require(gdata)
+require(shapes)
+
+prosimian.list <-
+    dir(path = '../Raw Data/Prosimians/Collections',
+        pattern = '.xlsx', recursive = TRUE, include.dirs = TRUE, full.names = TRUE)
+
+prosimian.raw <-
+    alply(prosimian.list, 1, function(f)
+        {
+            print(f)
+            ReadProsimian(f)
+        })
+
+prosimian.list <-
+    prosimian.list [!is.na(prosimian.raw)]
+
+prosimian.raw <-
+    prosimian.raw [!is.na(prosimian.raw)]
+
+prosimian.list <- gsub('../Raw Data/Prosimians/Collections/', '', prosimian.list)
+
+names(prosimian.raw) <- prosimian.list
+
+save(prosimian.raw, file = 'Prosimians/01_from_files.RData')
+
+
