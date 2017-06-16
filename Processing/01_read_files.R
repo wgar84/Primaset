@@ -95,3 +95,15 @@ calomys.raw <-
             print(f)
             ReadCalomys(f)
         })
+
+calomys.list <-
+    calomys.list [!is.na(calomys.raw)]
+
+calomys.raw <-
+    calomys.raw [!is.na(calomys.raw)]
+
+calomys.list <- gsub('../Raw Data/Calomys/', '', calomys.list)
+
+names(calomys.raw) <- calomys.list
+
+save(calomys.raw, file = 'Calomys/01_from_files.RData')
