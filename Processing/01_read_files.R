@@ -83,3 +83,15 @@ names(homo.raw) <- homo.list
 save(homo.raw, file = 'Homo/01_from_files.RData')
 
 
+### calomys
+
+calomys.list <-
+    dir(path = '../Raw Data/Calomys', pattern = 'input',
+        recursive = TRUE, include.dirs = TRUE, full.names = TRUE)
+
+calomys.raw <-
+    alply(calomys.list, 1, function(f)
+        {
+            print(f)
+            ReadCalomys(f)
+        })
