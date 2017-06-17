@@ -107,3 +107,5 @@ calomys.list <- gsub('../Raw Data/Calomys/', '', calomys.list)
 names(calomys.raw) <- calomys.list
 
 save(calomys.raw, file = 'Calomys/01_from_files.RData')
+
+### platyrrhini

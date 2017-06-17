@@ -4,7 +4,7 @@
 ##' @description
 ##' This function reads Excel files with catarrhine coordinate data.
 ##' 
-##' @param file 
+##' @param filename catarrhine register file (xls format)
 ##' @return
 ##' list with three elements:
 ##' id: data.frame with specimen information
@@ -16,13 +16,37 @@
 ##' @importFrom gdata read.xls
 ##' @importFrom plyr aaply alply
 ##' @examples
-ReadCatarrhine <- function(file)
+##' \dontrun{
+##' catarrhine.list <- 
+##'     dir(path = '../Raw Data/Catarrhini',
+##'         pattern = '.xls', recursive = TRUE, include.dirs = TRUE, full.names = TRUE)
+##' 
+##' catarrhine.raw <-
+##'     alply(catarrhine.list, 1, function(f)
+##'         {
+##'             print(f)
+##'             ReadCatarrhine(f)
+##'         })
+##' 
+##' catarrhine.list <-
+##'     catarrhine.list [!is.na(catarrhine.raw)]
+##' 
+##' catarrhine.raw <-
+##'     catarrhine.raw [!is.na(catarrhine.raw)]
+##' 
+##' catarrhine.list <- gsub('../Raw Data/Catarrhini/', '', catarrhine.list)
+##' 
+##' names(catarrhine.raw) <- catarrhine.list
+##' 
+##' save(catarrhine.raw, file = 'Catarrhini/01_from_files.RData')
+##' } 
+ReadCatarrhine <- function(filename)
 {
     error.found <- FALSE
-    ## checking if file is a valid measurement file
-    tryCatch(expr = {a.view <- read.xls(file, sheet = 'a', header = FALSE)},
+    ## checking if filename is a valid measurement file
+    tryCatch(expr = {a.view <- read.xls(filename, sheet = 'a', header = FALSE)},
              error = function(cond) {error.found <<- TRUE})
-    tryCatch(expr = {z.view <- read.xls(file, sheet = 'z', header = FALSE)},
+    tryCatch(expr = {z.view <- read.xls(filename, sheet = 'z', header = FALSE)},
              error = function(cond) {error.found <<- TRUE})
     if(error.found) return(NA)
     

@@ -1,24 +1,43 @@
-#' @title
-#' ReadCalomys
-#'
-#' @description
-#' This function reads Excel files containing the Calomys colony data.
-#'
-#' @param
-#' file
-#'
-#' @return
-#' list with three (?) elements
-#'
-#' @author Guilherme Garcia
-#'
-#' @importFrom gdata read.xls
-#' @importFrom plyr aaply
-#'
-#' @examples
-#'
-#' 
-#'
+##' @title
+##' ReadCalomys
+##'
+##' @description
+##' This function reads Excel files containing the Calomys colony data.
+##'
+##' @param filename excel register file (xls)
+##'
+##' @return
+##' list with two elements:
+##' D: right side
+##' E: left side
+##'
+##' @author Guilherme Garcia
+##'
+##' @importFrom gdata read.xls
+##' @importFrom plyr aaply
+##'
+##' @examples
+##' \dontrun{
+##' calomys.list <-
+##'     dir(path = '../Raw Data/Calomys', pattern = 'input',
+##'         recursive = TRUE, include.dirs = TRUE, full.names = TRUE)
+##' 
+##' calomys.raw <-
+##'     alply(calomys.list, 1, function(f)
+##'         {
+##'             print(f)
+##'             ReadCalomys(f)
+##'         })
+##' 
+##' calomys.list <-
+##'     calomys.list [!is.na(calomys.raw)]
+##' 
+##' calomys.raw <-
+##'     calomys.raw [!is.na(calomys.raw)]
+##' 
+##' calomys.list <- gsub('../Raw Data/Calomys/', '', calomys.list)
+##' }
+
 ReadCalomys <- function(filename)
 {
     error.found <- FALSE

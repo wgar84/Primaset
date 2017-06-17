@@ -2,7 +2,7 @@
 #'
 #' This function reads Excel files with prosimian coordinate data.
 #'
-#' @param file prosimian register file (xlsx format)
+#' @param filename prosimian register file (xlsx format)
 #' @return
 #' List with two elements:
 #' id: data frame with information
@@ -66,13 +66,13 @@
 #' save(prosimian.raw, file = '01_from_files.RData')
 #' }
 
-ReadProsimian <- function(file)
+ReadProsimian <- function(filename)
 {
     error.found <- FALSE
-    ## checking if file is a valid measurement file
-    tryCatch(expr = {id <- read.xls(file, sheet = 'Info ID')},
+    ## checking if filename is a valid measurement file
+    tryCatch(expr = {id <- read.xls(filename, sheet = 'Info ID')},
              error = function(cond) {error.found <<- TRUE})
-    tryCatch(expr = {raw.data <- read.xls(file, sheet = 'All-in-one')},
+    tryCatch(expr = {raw.data <- read.xls(filename, sheet = 'All-in-one')},
              error = function(cond) {error.found <<- TRUE})
     if(error.found) return(NA)
 

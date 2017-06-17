@@ -4,7 +4,7 @@
 ##' @description
 ##' This function reads Excel files with Homo sapiens data.
 ##'
-##' @param file excel filename
+##' @param filename excel filename
 ##' @return
 ##' list with three elements:
 ##' id: data.frame with specimen information
@@ -16,12 +16,36 @@
 ##' @importFrom gdata read.xls
 ##' @importFrom plyr aaply alply
 ##' @examples
+##' \dontrun{
+##' homo.list <- 
+##'     dir(path = '../Raw Data/Homo/dataset- homo sapiens',
+##'         pattern = '.xls', recursive = TRUE, include.dirs = TRUE, full.names = TRUE)
+##' 
+##' homo.raw <-
+##'     alply(homo.list, 1, function(f)
+##'         {
+##'             print(f)
+##'             ReadHomo(f)
+##'         })
+##' 
+##' homo.list <-
+##'     homo.list [!is.na(homo.raw)]
+##' 
+##' homo.raw <-
+##'     homo.raw [!is.na(homo.raw)]
+##' 
+##' homo.list <- gsub('../Raw Data/Homo/dataset- homo sapiens/', '', homo.list)
+##' 
+##' names(homo.raw) <- homo.list
+##' 
+##' save(homo.raw, file = 'Homo/01_from_files.RData')
+##' }
 
-ReadHomo <- function(file)
+ReadHomo <- function(filename)
 {
     error.found <- FALSE
-    ## checking if file is a valid measurement file
-    tryCatch(expr = {view <- read.xls(file, sheet = 1, header = FALSE)},
+    ## checking if filename is a valid measurement file
+    tryCatch(expr = {view <- read.xls(filename, sheet = 1, header = FALSE)},
              error = function(cond) {error.found <<- TRUE})
 
     a.view <- view[1:34, ]
