@@ -112,3 +112,5 @@ save(calomys.raw, file = 'Calomys/01_from_files.RData')
 platyrrhini.raw <- ReadPlatyrrhini('../Raw Data/Platyrrhini/')
 
 save(platyrrhini.raw, file = 'Platyrrhini/01_from_files.RData')
+
+table(platyrrhini.raw $ id $ GENUS) ## quase 1000 a mais

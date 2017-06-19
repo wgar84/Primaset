@@ -4,13 +4,15 @@
 \alias{ReadProsimian}
 \title{ReadProsimian}
 \usage{
-ReadProsimian(file)
+ReadProsimian(filename)
 }
 \arguments{
-\item{file}{prosimian register file (xlsx format)}
+\item{filename}{prosimian register file (xlsx format)}
 }
 \value{
-List with two elements: data frame with information and array of coordinate data.
+List with two elements:
+id: data frame with information
+shapes: array of coordinate data.
 }
 \description{
 This function reads Excel files with prosimian coordinate data.
@@ -30,6 +32,8 @@ had wrong tag in first lm of third specimen
 
 MNHN_Paris/Madagascar/Mirza/Mirza_A.xlsx had some weird
 characters and extra columns in 'Info ID'; had to remove extra columns
+
+we glued a skull in AMNH_NewYork/Madagascar/Cheirogaleus/Cheirogaleus_A_ok.xlsx 
 
 all xlsx files in MNHN_Paris/Madagascar/Propithecus/ also required a similar intervention;
 delete extra columns in 'Info ID'

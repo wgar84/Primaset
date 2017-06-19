@@ -144,9 +144,16 @@ ReadPlatyrrhini <- function(path)
                           function(i)
                               paste(num.raw [i], 1:length(Z.list [[i]]), sep = '.')))
 
-    A.list <- unlist(A.list)
-    A.sh <- aaply(A.list, 1, function(f) readSingleFile(paste0(path, f)))
 
+    
+    A.list <- unlist(A.list)
+
+    A.misslm <- !(A.list == 'BBB/A2P/194355.A1P')
+    
+    A.list <- A.list[A.misslm]
+    A.num <- A.num[A.misslm]
+    A.sh <- aaply(A.list, 1, function(f) readSingleFile(paste0(path, f)))
+   
     dimnames(A.sh) <- list(A.num, lms.A, c('X', 'Y', 'Z'))
 
     Z.list <- unlist(Z.list)
