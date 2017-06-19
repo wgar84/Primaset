@@ -109,3 +109,6 @@ names(calomys.raw) <- calomys.list
 save(calomys.raw, file = 'Calomys/01_from_files.RData')
 
 ### platyrrhini
+platyrrhini.raw <- ReadPlatyrrhini('../Raw Data/Platyrrhini/')
+
+save(platyrrhini.raw, file = 'Platyrrhini/01_from_files.RData')
