@@ -2,7 +2,7 @@
 ##' GlueSkulls
 ##'
 ##' @description
-##' This function joins two different sets of landmark configuration which correspond
+##' This function joins two different sets of landmark configurations which correspond
 ##' to the same individuals
 ##'
 ##' @param A first set of landmark configurations
@@ -51,14 +51,15 @@ GlueSkulls <- function (A, Z)
     {
         out <- aaply(1:dim (A)[3], 1, function(i) glueSkull (A[, , i], Z[, , i]))
         right.first = function (element)
-          {
-            return (ifelse (length (element) == 1, 0,
-                            ifelse (element [1] == 'NLT', 3,
-                                    ifelse (element [2] == 'D', 1, 2))))
-          }
+        {
+            ifelse (length (element) == 1, 0,
+                    ifelse (element [1] == 'NLT', 3,
+                            ifelse (element [2] == 'D', 1, 2)))
+        }
         ord = strsplit (dimnames (out) [[1]], split = '-')
         ord = sapply (ord, right.first)
         out = out [order (ord),,]
-        return (list (out, dets))
+        out <- aperm(out, c(2, 3, 1))
+        return (out)
       }
   }

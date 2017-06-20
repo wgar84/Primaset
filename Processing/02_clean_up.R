@@ -16,20 +16,28 @@ load('strepBase.RData')
 ## essa função contem o trampo de limpeza da semana anterior
 prosimian.cleanup <- CleanUpProsimian(prosimian.raw)
 
+save(prosimian.cleanup, file = 'Prosimians/02_clean_up.RData')
+
 ### consolidados da papete
 strep.base <- unique(strep.Base)
 
 strep.base <- gsub('ZMBZMB', 'ZMB', strep.base)
 strep.base <- gsub('_Paris', '', strep.base)
 
-## dimnames(prosimian.shapes) <-
-##     list(landmarks.that.matter,
-##          LETTERS[24:26],
-##          paste0("take", 1:2),
-##          paste(prosimian.id$Museu, prosimian.id$Tombo, sep = "_"))
 
-save(prosimian.cleanup, file = 'Prosimians/02_clean_up.RData')
+### CALOMYS
+
+load('../Raw Data/Calomys/skull.RData')
+load('../Raw Data/Calomys/skull2.RData')
+
+calomys.id <- rbind(exp [[1]] [, 1:7], exp2 [[1]] [, 1:7])
+rm(exp, exp2)
+
+calomys.cleanup <- CleanUpCalomys(xls.list = calomys.raw, id = calomys.id)
+
+save(calomys.cleanup, file = 'Calomys/02_clean_up.RData')
 
 ### PLATYRRHINI
 
-load('Platyrrhini/01_from_files.RData')
+## load('Platyrrhini/01_from_files.RData')
+
