@@ -11,17 +11,18 @@
 ##' the Excel files
 ##'
 ##' @return
-##' a list with two elements, id and shapes, the cleaned up version of what came in
+##' a list with two elements, id and coord, the cleaned up version of what came in
 ##'
 ##' @author Guilherme Garcia, Anna Penna
 ##'
 ##' @importFrom plyr ldply
 ##'
-##'
-##' @seealso PreadProsimian
+##' @seealso ReadProsimian
 ##' 
 ##' @examples
-##' 
+##' \dontrun{
+##' prosimian.cleanup <- CleanUpProsimian(prosimian.raw)
+##' }
 
 CleanUpProsimian <- function(raw)
 {
@@ -130,8 +131,7 @@ CleanUpProsimian <- function(raw)
                              paste0("R", 1:2),
                              paste(id$Museu, id$Tombo, sep = "_"))
     
-    cleanup <- list(id, shapes)
+    cleanup <- list('id' = id, 'coord' = shapes)
     
-    cleanup
-    
+    cleanup   
 }
