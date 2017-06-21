@@ -18,7 +18,7 @@
 ##' 
 ##' @author Guilherme Garcia
 ##'
-##' @importFrom plyr aaply
+##' @importFrom plyr laply
 ##'
 ##' @seealso ReadCalomys
 ##'
@@ -67,13 +67,29 @@ CleanUpCalomys <- function(xls.list, id)
     coord.e <- coord.e [, , , order(dimnames(coord.e) [[4]])]
     id <- id[order(id $ num), ]
 
-    coord <- aaply(1:2, 1,
-                   function(i) GlueSkulls(coord.d [, , i, ], coord.e [, , i, ]))
+    coord <-
+        aaply(1:2, 1,
+              function(i) aaply(1:nrow(id), 1, 
+                                function(j) GlueSkull(coord.d [, , i, j], coord.e [, , i, j])))
 
-    coord <- aperm(coord, c(2, 3, 1, 4))
+    coord <- aperm(coord, c(3, 4, 1, 2))
 
     dimnames(coord)[3:4] <- list(c('R1', 'R2'), id $ num)
 
-    list('id' = id, 'coord' = coord)
+    miss.lm <- aaply(aaply(coord[, , 1, ], c(1, 2), is.na), 3, any)
+    
+    info <- data.frame(
+        'ID' = id $ num,
+        'GEN' = rep('Calomys', times = nrow(id)),
+        'SPE' = rep('expulsus', times = nrow(id)),
+        'SEX' = id $ sex,
+        'AGE' = id $ age,
+        'SIR' = id $ sir,
+        'DAM' = id $ dam,
+        'LIT' = id $ lit,
+        'SIB' = id $ sib,
+        'MISS' = miss.lm)
+    
+    list('info' = info, 'coord' = coord)
     
 }   

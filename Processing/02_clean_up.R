@@ -27,6 +27,8 @@ strep.base <- gsub('_Paris', '', strep.base)
 
 ### CALOMYS
 
+load('Calomys/01_from_files.RData')
+
 load('../Raw Data/Calomys/skull.RData')
 load('../Raw Data/Calomys/skull2.RData')
 
@@ -37,7 +39,20 @@ calomys.cleanup <- CleanUpCalomys(xls.list = calomys.raw, id = calomys.id)
 
 save(calomys.cleanup, file = 'Calomys/02_clean_up.RData')
 
+## calomys.gpa <-
+##     procGPA(calomys.cleanup $ coord [, , 1, !calomys.cleanup $ info $ MISS])
+
+## for(i in 1:(dim(calomys.gpa $ rotated)[3]))
+##     rgl::points3d(calomys.gpa $ rotated [, , i])
+
+### HOMO
+
+load('Homo/01_from_files.RData')
+
+homo.cleanup <- CleanUpHomo(homo.raw)
+
+save(homo.cleanup, file = 'Homo/02_clean_up.RData')
+
 ### PLATYRRHINI
 
 ## load('Platyrrhini/01_from_files.RData')
-

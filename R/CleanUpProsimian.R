@@ -7,7 +7,7 @@
 ##' that kind of stuff.
 ##' This is the second step towards a nice crispy Prosimian DB.
 ##'
-##' @param raw output obtained from ReadProsimian, which basically just reads
+##' @param xls.list output obtained from ReadProsimian, which basically just reads
 ##' the Excel files
 ##'
 ##' @return
@@ -24,7 +24,7 @@
 ##' prosimian.cleanup <- CleanUpProsimian(prosimian.raw)
 ##' }
 
-CleanUpProsimian <- function(raw)
+CleanUpProsimian <- function(xls.list)
 {
     ## landmarks que importam (PARA UMA BASE DE DADOS DO LEM)
     landmarks.that.matter <-
@@ -35,7 +35,7 @@ CleanUpProsimian <- function(raw)
           "PT-D", "TSP-D", "FM-D", "ZS-D", "ZI-D", "ZYGO-D",
           "PM-D", "MT-D", "TS-D", "EAM-D" , "PEAM-D", "AS-D", "APET-D", "JP-D")
 
-    id <- ldply(raw, function(L) data.frame(L $ id), .id = 'file')
+    id <- ldply(xls.list, function(L) data.frame(L $ id), .id = 'file')
 
     ## isso pesca todo mundo, acho
     all.missing.entries <-
@@ -51,15 +51,15 @@ CleanUpProsimian <- function(raw)
     id $ Ind <- gsub('_Paris', '', id $ Ind)
     id $ Museu <- gsub('_Paris', '', id $ Museu)
 
-    shapes <- array(0, c(length(landmarks.that.matter), 3, 2, 10 * length(raw)))
+    shapes <- array(0, c(length(landmarks.that.matter), 3, 2, 10 * length(xls.list)))
 
-    for(i in 1:length(raw))
+    for(i in 1:length(xls.list))
     {
         lms.to.keep <-
-            which(dimnames(raw [[i]] $ shapes) [[1]] %in% landmarks.that.matter)
+            which(dimnames(xls.list [[i]] $ shapes) [[1]] %in% landmarks.that.matter)
         
         shapes [, , , ((10*i)-9):(10*i)] <-
-            raw [[i]] $ shapes [lms.to.keep, , , ]
+            xls.list [[i]] $ shapes [lms.to.keep, , , ]
     }
 
     shapes <- shapes[, , , !all.missing.entries]
