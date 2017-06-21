@@ -1,6 +1,6 @@
 ##' @title
 ##' CleanUpProsimian
-##' 
+##'
 ##' @description
 ##' This function wraps up our work on cleaning up the Prosimian data.
 ##' Repeated entries are removed, all individuals have the same number of landmarks,
@@ -18,7 +18,7 @@
 ##' @importFrom plyr ldply
 ##'
 ##' @seealso ReadProsimian
-##' 
+##'
 ##' @examples
 ##' \dontrun{
 ##' prosimian.cleanup <- CleanUpProsimian(prosimian.raw)
@@ -57,7 +57,7 @@ CleanUpProsimian <- function(raw)
     {
         lms.to.keep <-
             which(dimnames(raw [[i]] $ shapes) [[1]] %in% landmarks.that.matter)
-        
+
         shapes [, , , ((10*i)-9):(10*i)] <-
             raw [[i]] $ shapes [lms.to.keep, , , ]
     }
@@ -74,7 +74,7 @@ CleanUpProsimian <- function(raw)
         id $ file [(!grepl('_ok', id $ file)) &
                    (duplicated(id $ Ind) |
                     duplicated(id $ Ind, fromLast = TRUE))]
-    
+
     which.not.ok <- which((!grepl('_ok', id $ file)) &
                           (duplicated(id $ Ind) |
                            duplicated(id $ Ind, fromLast = TRUE)))
@@ -84,7 +84,7 @@ CleanUpProsimian <- function(raw)
 
     shapes <- shapes [, , , - which.not.ok [not.ok.files %in%
                                             gsub('_ok', '', ok.files)]]
-    
+
     shapes <-
         shapes[, , ,
                - which(grepl('_ok', id $ file) &
@@ -99,24 +99,24 @@ CleanUpProsimian <- function(raw)
     id [duplicated(id $ Ind) |
         duplicated(id $ Ind, fromLast = TRUE),
         c('file', 'Ind', 'Especie')]
-    
+
     still.double <-
         which(duplicated(id $ Ind) |
               duplicated(id $ Ind, fromLast = TRUE))
-    
+
     id [id $ Ind == 'RMNH28535', 'Especie'] [2] <- 'Tarsius bancanus'
-    
+
     still.double <- still.double [duplicated(id [still.double, 'Ind']) &
                                   duplicated(id [still.double, 'Especie'])]
-    
+
     id <- id [- still.double, ]
-    
+
     shapes <- shapes [, , , - still.double]
-    
+
     id [id $ Ind == 'AMNH100589', 'Ind'] <-
         paste0(id [id $ Ind == 'AMNH100589', 'Ind'],
                c('E', 'L'))
-    
+
     id [id $ Ind == 'MNHNMO-1910-101', 'Ind'] <-
         paste0(id [id $ Ind == 'MNHNMO-1910-101', 'Ind'],
                c('E', 'L'))
@@ -129,9 +129,9 @@ CleanUpProsimian <- function(raw)
     dimnames(shapes) <- list(landmarks.that.matter,
                              LETTERS[24:26],
                              paste0("R", 1:2),
-                             paste(id$Museu, id$Tombo, sep = "_"))
-    
+                             id$Ind)
+
     cleanup <- list('id' = id, 'coord' = shapes)
-    
-    cleanup   
+
+    cleanup
 }
