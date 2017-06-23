@@ -6,7 +6,7 @@
 ##' 
 ##' @param xls.list output obtained from ReadHomo
 ##'
-##' @return a list with two elements, id and coord
+##' @return a list with two elements, info and coord
 ##'
 ##' @details will GlueSkulls
 ##' 

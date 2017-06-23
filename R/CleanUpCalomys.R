@@ -11,7 +11,7 @@
 ##' @param id id from individuals (obtained from previous work with this DB)
 ##' 
 ##' @return
-##' a list with two elements, id and coord, the cleaned up version of what came in
+##' a list with two elements, info and coord, the cleaned up version of what came in
 ##'
 ##' @details
 ##' this function already glues left and right hemiskulls
