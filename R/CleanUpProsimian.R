@@ -1,13 +1,13 @@
 ##' @title
 ##' CleanUpProsimian
-##'
+##' 
 ##' @description
 ##' This function wraps up our work on cleaning up the Prosimian data.
 ##' Repeated entries are removed, all individuals have the same number of landmarks,
 ##' that kind of stuff.
 ##' This is the second step towards a nice crispy Prosimian DB.
 ##'
-##' @param raw output obtained from ReadProsimian, which basically just reads
+##' @param xls.list output obtained from ReadProsimian, which basically just reads
 ##' the Excel files
 ##'
 ##' @return
@@ -18,13 +18,13 @@
 ##' @importFrom plyr ldply
 ##'
 ##' @seealso ReadProsimian
-##'
+##' 
 ##' @examples
 ##' \dontrun{
 ##' prosimian.cleanup <- CleanUpProsimian(prosimian.raw)
 ##' }
 
-CleanUpProsimian <- function(raw)
+CleanUpProsimian <- function(xls.list)
 {
     ## landmarks que importam (PARA UMA BASE DE DADOS DO LEM)
     landmarks.that.matter <-
@@ -35,7 +35,7 @@ CleanUpProsimian <- function(raw)
           "PT-D", "TSP-D", "FM-D", "ZS-D", "ZI-D", "ZYGO-D",
           "PM-D", "MT-D", "TS-D", "EAM-D" , "PEAM-D", "AS-D", "APET-D", "JP-D")
 
-    id <- ldply(raw, function(L) data.frame(L $ id), .id = 'file')
+    id <- ldply(xls.list, function(L) data.frame(L $ id), .id = 'file')
 
     ## isso pesca todo mundo, acho
     all.missing.entries <-
@@ -51,15 +51,15 @@ CleanUpProsimian <- function(raw)
     id $ Ind <- gsub('_Paris', '', id $ Ind)
     id $ Museu <- gsub('_Paris', '', id $ Museu)
 
-    shapes <- array(0, c(length(landmarks.that.matter), 3, 2, 10 * length(raw)))
+    shapes <- array(0, c(length(landmarks.that.matter), 3, 2, 10 * length(xls.list)))
 
-    for(i in 1:length(raw))
+    for(i in 1:length(xls.list))
     {
         lms.to.keep <-
-            which(dimnames(raw [[i]] $ shapes) [[1]] %in% landmarks.that.matter)
-
+            which(dimnames(xls.list [[i]] $ shapes) [[1]] %in% landmarks.that.matter)
+        
         shapes [, , , ((10*i)-9):(10*i)] <-
-            raw [[i]] $ shapes [lms.to.keep, , , ]
+            xls.list [[i]] $ shapes [lms.to.keep, , , ]
     }
 
     shapes <- shapes[, , , !all.missing.entries]
@@ -74,7 +74,7 @@ CleanUpProsimian <- function(raw)
         id $ file [(!grepl('_ok', id $ file)) &
                    (duplicated(id $ Ind) |
                     duplicated(id $ Ind, fromLast = TRUE))]
-
+    
     which.not.ok <- which((!grepl('_ok', id $ file)) &
                           (duplicated(id $ Ind) |
                            duplicated(id $ Ind, fromLast = TRUE)))
@@ -84,7 +84,7 @@ CleanUpProsimian <- function(raw)
 
     shapes <- shapes [, , , - which.not.ok [not.ok.files %in%
                                             gsub('_ok', '', ok.files)]]
-
+    
     shapes <-
         shapes[, , ,
                - which(grepl('_ok', id $ file) &
@@ -99,24 +99,24 @@ CleanUpProsimian <- function(raw)
     id [duplicated(id $ Ind) |
         duplicated(id $ Ind, fromLast = TRUE),
         c('file', 'Ind', 'Especie')]
-
+    
     still.double <-
         which(duplicated(id $ Ind) |
               duplicated(id $ Ind, fromLast = TRUE))
-
+    
     id [id $ Ind == 'RMNH28535', 'Especie'] [2] <- 'Tarsius bancanus'
-
+    
     still.double <- still.double [duplicated(id [still.double, 'Ind']) &
                                   duplicated(id [still.double, 'Especie'])]
-
+    
     id <- id [- still.double, ]
-
+    
     shapes <- shapes [, , , - still.double]
-
+    
     id [id $ Ind == 'AMNH100589', 'Ind'] <-
         paste0(id [id $ Ind == 'AMNH100589', 'Ind'],
                c('E', 'L'))
-
+    
     id [id $ Ind == 'MNHNMO-1910-101', 'Ind'] <-
         paste0(id [id $ Ind == 'MNHNMO-1910-101', 'Ind'],
                c('E', 'L'))
@@ -129,9 +129,9 @@ CleanUpProsimian <- function(raw)
     dimnames(shapes) <- list(landmarks.that.matter,
                              LETTERS[24:26],
                              paste0("R", 1:2),
-                             id$Ind)
-
+                             paste(id$Museu, id$Tombo, sep = "_"))
+    
     cleanup <- list('id' = id, 'coord' = shapes)
-
-    cleanup
+    
+    cleanup   
 }

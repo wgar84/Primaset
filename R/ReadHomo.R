@@ -51,7 +51,7 @@ ReadHomo <- function(filename)
     a.view <- view[1:34, ]
     z.view <- view[35:46, ]
 
-    id.head <- c('numero', 'grupo', 'origem', 'sexo', 'idade', 'obs')
+    id.head <- c('numero', 'grupo', 'sexo', 'origem', 'idade', 'obs')
     
     ## A
     a.start <- which(a.view == 'is', arr.ind = TRUE)
@@ -59,9 +59,11 @@ ReadHomo <- function(filename)
     a.end <- a.end[seq(2, nrow(a.end), 2), ]
 
     a.lm <- as.character(a.view[a.start[1, 'row']:a.end[1, 'row'], a.start[1, 'col']])
+    a.lm <- toupper(a.lm)
+    
     a.lm[is.na(a.lm)] <- 'NA'
-    a.left <- duplicated(a.lm)
-    a.right <- duplicated(a.lm, fromLast = TRUE)
+    a.left <- duplicated(a.lm, fromLast = TRUE)
+    a.right <- duplicated(a.lm)
     a.lm[a.left] <- paste0(a.lm[a.left], '-E')
     a.lm[a.right] <- paste0(a.lm[a.right], '-D')
 
@@ -71,6 +73,7 @@ ReadHomo <- function(filename)
     z.end <- z.end[seq(2, nrow(z.end), 2), ]
 
     z.lm <- as.character(z.view[z.start[1, 'row']:z.end[1, 'row'], z.start[1, 'col']])
+    z.lm <- toupper(z.lm)
     z.left <- duplicated(z.lm)
     z.right <- duplicated(z.lm, fromLast = TRUE)
     z.lm[z.left] <- paste0(z.lm[z.left], '-E')
@@ -122,9 +125,6 @@ ReadHomo <- function(filename)
         dim(current.shape) <- c(length(z.lm), 3, 2)
         current.shape
     })
-
-    a.lm <- toupper(a.lm)
-    z.lm <- toupper(z.lm)
     
     a.shapes <- aperm(a.shapes, c(2, 3, 4, 1))
     z.shapes <- aperm(z.shapes, c(2, 3, 4, 1))
