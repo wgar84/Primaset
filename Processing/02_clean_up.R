@@ -58,6 +58,7 @@ save(homo.cleanup, file = 'Homo/02_clean_up.RData')
 
 load('../Raw Data/Catarrhini/raw.RData') ### raw from previous iteration
 catarrhini.raw <- owm.raw
+rm(owm.raw)
 
 fino.list <- read.csv('../Raw Data/Catarrhini/catarrhini.csv')
 fino.list <- subset(fino.list, GENUS != 'Homo')
