@@ -2,6 +2,7 @@ require(devtools)
 require(roxygen2)
 require(shapes)
 require(plyr)
+require(rgl)
 
 ### PROSIMIAN
 load('Prosimians/01_from_files.RData')
@@ -52,6 +53,18 @@ load('Homo/01_from_files.RData')
 homo.cleanup <- CleanUpHomo(homo.raw)
 
 save(homo.cleanup, file = 'Homo/02_clean_up.RData')
+
+### CATARRHINI
+
+load('../Raw Data/Catarrhini/raw.RData') ### raw from previous iteration
+catarrhini.raw <- owm.raw
+
+fino.list <- read.csv('../Raw Data/Catarrhini/catarrhini.csv')
+fino.list <- subset(fino.list, GENUS != 'Homo')
+
+catarrhini.cleanup <- CleanUpCatarrhini(catarrhini.raw, fino.list)
+
+save(catarrhini.cleanup, file = 'Catarrhini/02_clean_up.RData')
 
 ### PLATYRRHINI
 

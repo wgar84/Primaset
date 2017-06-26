@@ -30,7 +30,7 @@ GlueSkull <- function (Ai, Zi)
     cZ <- cZ[order (lmZ[cZ])]
     
     ## NA
-    missing.entries <- is.na(Ai [cA, 1])
+    missing.entries <- is.na(Ai [cA, 1]) | is.na(Zi [cZ, 1])
     if(any(missing.entries)) {
         cA <- cA [!missing.entries]
         cZ <- cZ [!missing.entries] }

@@ -20,9 +20,12 @@
 CleanUpCatarrhini <- function(owm.raw, or.list)
 {
     ### limpando raw (código do eu do passado)
-    owm.raw$lmA = c("IS","PM-E","NSL","NA","BR","PT-E","FM-E","ZS-E","ZI-E","MT-E",
-                    "PNS","APET-E","BA","OPI","EAM-E","PEAM-E","ZYGO-E","TSP-E","TS-E","JP-E",
-                    "PM-D","PT-D","FM-D","ZS-D","ZI-D","MT-D","APET-D","EAM-D","PEAM-D","ZYGO-D",
+    owm.raw$lmA = c("IS","PM-E","NSL","NA","BR","PT-E","FM-E",
+                    "ZS-E","ZI-E","MT-E",
+                    "PNS","APET-E","BA","OPI","EAM-E","PEAM-E",
+                    "ZYGO-E","TSP-E","TS-E","JP-E",
+                    "PM-D","PT-D","FM-D","ZS-D","ZI-D","MT-D","APET-D","EAM-D",
+                    "PEAM-D","ZYGO-D",
                     "TSP-D","TS-D","JP-D")
     
     test = owm.raw$Z1[,1]
@@ -187,15 +190,42 @@ CleanUpCatarrhini <- function(owm.raw, or.list)
 
     no.dataA <-  specimen.lm.raw %in% dataA.plus
 
-    sum(no.dataA)
-
     data.lm <- data.lm [no.dataA, ]
     specimen.lm <- specimen.lm [no.dataA]
     specimen.lm.plus <- specimen.lm.plus [no.dataA]
     specimen.lm.raw <- specimen.lm.raw [no.dataA]
     
-    nrow(data.lm)
-    
-    all(dataA.plus == specimen.lm.raw)
+    all(specimen.lm.raw == dataA.plus)
 
+    rownames(owm.raw $ A1) <- rownames(owm.raw $ A2) <- owm.raw $ lmA
+    rownames(owm.raw $ Z1) <- rownames(owm.raw $ Z2) <- owm.raw $ lmZ
+    
+    coord <-
+        aaply(1:length(dataA.plus), 1,
+              function(i)
+              {
+                  aaply(1:2, 1,
+                        function(j)
+                        {
+                            Aij <- owm.raw [[j]] [, , i]
+                            Zij <- owm.raw [[j + 2]] [, , i]
+                            GlueSkull(Aij, Zij)
+                        })})
+
+    coord <- aperm(coord, c(3, 4, 2, 1))
+    
+    dimnames(coord)[2:4] <- list(c('X', 'Y', 'Z'), c('R1', 'R2'), specimen.lm.plus)
+    miss.lm <- aaply(aaply(coord[, , 1, ], c(1, 2), is.na), 3, any)
+    
+    info <-
+        data.frame('ID' = specimen.lm.plus,
+                   'GEN' = data.lm $ GENUS,
+                   'SPE' = data.lm $ SPECIES,
+                   'SEX' = data.lm $ SEX,
+                   'SUB' = data.lm $ SUBSPECIES,
+                   'MISS' = miss.lm,
+                   'FILE' = data.lm $ FILE)
+    
+    list('info' = info, 'coord' = coord)
+    
 }
