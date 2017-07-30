@@ -70,3 +70,6 @@ save(catarrhini.cleanup, file = 'Catarrhini/02_clean_up.RData')
 ### PLATYRRHINI
 
 ## load('Platyrrhini/01_from_files.RData')
+platyrrhini.cleanup <- CleanUpPlatyrrhini(platyrrhini.raw)
+
+save(platyrrhini.cleanup, file = 'Platyrrhini/02_clean_up.RData')
