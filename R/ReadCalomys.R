@@ -16,25 +16,28 @@
 ##' @importFrom gdata read.xls
 ##' @importFrom plyr aaply
 ##'
+##' @export
+##' @rdname ReadCalomys
+##'
 ##' @examples
 ##' \dontrun{
 ##' calomys.list <-
 ##'     dir(path = '../Raw Data/Calomys', pattern = 'input',
 ##'         recursive = TRUE, include.dirs = TRUE, full.names = TRUE)
-##' 
+##'
 ##' calomys.raw <-
 ##'     alply(calomys.list, 1, function(f)
 ##'         {
 ##'             print(f)
 ##'             ReadCalomys(f)
 ##'         })
-##' 
+##'
 ##' calomys.list <-
 ##'     calomys.list [!is.na(calomys.raw)]
-##' 
+##'
 ##' calomys.raw <-
 ##'     calomys.raw [!is.na(calomys.raw)]
-##' 
+##'
 ##' calomys.list <- gsub('../Raw Data/Calomys/', '', calomys.list)
 ##' }
 
@@ -57,7 +60,7 @@ ReadCalomys <- function(filename)
     e.end <- de.end[which(de.end[, 'col'] == 10), ]
 
     ids <- de.view [d.start - c(1, 1)]
-    
+
     lms <- as.character(de.view[d.start[1, 'row']:d.end[1, 'row'], 2])
     lms[is.na(lms)] <- 'NA'
 
@@ -88,10 +91,10 @@ ReadCalomys <- function(filename)
 
     d.view <- aperm(d.view, c(2, 3, 4, 1))
     e.view <- aperm(e.view, c(2, 3, 4, 1))
-                    
+
     dimnames(d.view) <-list(d.lms, c('X', 'Y', 'Z'), c('R1', 'R2'), ids)
     dimnames(e.view) <-list(e.lms, c('X', 'Y', 'Z'), c('R1', 'R2'), ids)
 
     list('D' = d.view, 'E' = e.view)
-    
+
 }

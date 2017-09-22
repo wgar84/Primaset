@@ -13,6 +13,9 @@
 ##'
 ##' @author Guilherme Garcia
 ##'
+##' @export
+##' @rdname ReadCatarrhine
+##' 
 ##' @importFrom gdata read.xls
 ##' @importFrom plyr aaply alply
 ##' @examples

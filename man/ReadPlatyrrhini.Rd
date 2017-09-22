@@ -27,7 +27,9 @@ Also notice that the number of replicates for each A and Z may be different.
 }
 \examples{
 
+\dontrun{
 ReadPlatyrrhini(path = '../Raw Data/Platyrrhini')
+}
 }
 \author{
 Guilherme Garcia

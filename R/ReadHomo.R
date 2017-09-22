@@ -15,29 +15,33 @@
 ##'
 ##' @importFrom gdata read.xls
 ##' @importFrom plyr aaply alply
+##'
+##' @export
+##' @rdname ReadHomo
+##'
 ##' @examples
 ##' \dontrun{
-##' homo.list <- 
+##' homo.list <-
 ##'     dir(path = '../Raw Data/Homo/dataset- homo sapiens',
 ##'         pattern = '.xls', recursive = TRUE, include.dirs = TRUE, full.names = TRUE)
-##' 
+##'
 ##' homo.raw <-
 ##'     alply(homo.list, 1, function(f)
 ##'         {
 ##'             print(f)
 ##'             ReadHomo(f)
 ##'         })
-##' 
+##'
 ##' homo.list <-
 ##'     homo.list [!is.na(homo.raw)]
-##' 
+##'
 ##' homo.raw <-
 ##'     homo.raw [!is.na(homo.raw)]
-##' 
+##'
 ##' homo.list <- gsub('../Raw Data/Homo/dataset- homo sapiens/', '', homo.list)
-##' 
+##'
 ##' names(homo.raw) <- homo.list
-##' 
+##'
 ##' save(homo.raw, file = 'Homo/01_from_files.RData')
 ##' }
 
@@ -52,7 +56,7 @@ ReadHomo <- function(filename)
     z.view <- view[35:46, ]
 
     id.head <- c('numero', 'grupo', 'sexo', 'origem', 'idade', 'obs')
-    
+
     ## A
     a.start <- which(a.view == 'is', arr.ind = TRUE)
     a.end <- which(a.view == 'JP', arr.ind = TRUE)
@@ -60,7 +64,7 @@ ReadHomo <- function(filename)
 
     a.lm <- as.character(a.view[a.start[1, 'row']:a.end[1, 'row'], a.start[1, 'col']])
     a.lm <- toupper(a.lm)
-    
+
     a.lm[is.na(a.lm)] <- 'NA'
     a.left <- duplicated(a.lm, fromLast = TRUE)
     a.right <- duplicated(a.lm)
@@ -80,26 +84,26 @@ ReadHomo <- function(filename)
     z.lm[z.right] <- paste0(z.lm[z.right], '-D')
 
     ## ID
-    a.id <- 
+    a.id <-
         aaply(1:nrow(a.start), 1, function(i)
         {
-            id.start <- a.start [i, ] - c(1, 1) 
+            id.start <- a.start [i, ] - c(1, 1)
             id.end <- 6
             current.id <- as.character(a.view[id.start['row']:id.end, id.start['col']])
             current.id
         })
 
-    z.id <- 
+    z.id <-
         aaply(1:nrow(z.start), 1, function(i)
         {
-            id.start <- z.start [i, ] - c(1, 1) 
+            id.start <- z.start [i, ] - c(1, 1)
             id.end <- 6
             current.id <- as.character(z.view[id.start['row']:id.end, id.start['col']])
             current.id
         })
-    
+
     ## WORK ON THAT ID
-    
+
     colnames(a.id) <- id.head
     colnames(z.id) <- id.head
 
@@ -125,7 +129,7 @@ ReadHomo <- function(filename)
         dim(current.shape) <- c(length(z.lm), 3, 2)
         current.shape
     })
-    
+
     a.shapes <- aperm(a.shapes, c(2, 3, 4, 1))
     z.shapes <- aperm(z.shapes, c(2, 3, 4, 1))
 

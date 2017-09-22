@@ -1,18 +1,21 @@
 ##' @title
 ##' CleanUpPlatyrrhini
-##' 
+##'
 ##' @description
 ##' This function cleans up Platyrrhini data from excel files.
-##' 
+##'
 ##' @param raw.list raw output from reading ascii files
-##' 
+##'
 ##' @return a list with two elements, info and coord
 ##'
 ##' @details will GlueSkulls
-##' 
+##'
 ##' @author Guilherme Garcia
 ##'
 ##' @importFrom plyr llply aaply ldply
+##'
+##' @export
+##' @rdname CleanUpPlatyrrhini
 ##'
 ##' @seealso ReadPlatyrrhini
 
@@ -34,13 +37,13 @@ CleanUpPlatyrrhini <- function(raw.list)
     id <- raw.list $ id
     id $ REP <- raw.list $ id $ REP.A > 1 & raw.list $ id $ REP.Z > 1
     id <- id [, c(1:10, 13)]
-    
+
     ## two rep
 
     two.rep.id <- id $ ID [id $ REP]
 
     coord.2r <- array(0, c(dim(coord.1r) [1:2], length(two.rep.id), 2))
-    
+
     A.R1 <-
         raw.list $ A [, , match(paste0(two.rep.id, '.1'),
                                 dimnames(raw.list $ A) [[3]])]
@@ -75,7 +78,7 @@ CleanUpPlatyrrhini <- function(raw.list)
     miss.lm <- aaply(aaply(coord.1r, c(1, 2), is.na), 3, any)
 
     id $ MISS <- miss.lm
-    
+
     list('id' = id, 'coord' = coord.1r, 'rep' = coord.2r)
-    
+
 }

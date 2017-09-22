@@ -20,7 +20,7 @@ This function reads Excel files with Homo sapiens data.
 }
 \examples{
 \dontrun{
-homo.list <- 
+homo.list <-
     dir(path = '../Raw Data/Homo/dataset- homo sapiens',
         pattern = '.xls', recursive = TRUE, include.dirs = TRUE, full.names = TRUE)
 

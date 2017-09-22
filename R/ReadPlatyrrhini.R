@@ -18,17 +18,21 @@
 ##' Individual configurations are labeled in both A and Z so that
 ##' replicates are identified, in the form (number in id).(replicate).
 ##' Also notice that the number of replicates for each A and Z may be different.
-##' 
+##'
 ##' @author Guilherme Garcia
 ##'
 ##' @importFrom gdata read.xls
 ##' @importFrom plyr aaply alply
 ##' @importFrom shapes centroid.size
-##' 
+##'
+##' @export
+##' @rdname ReadPlatyrrhini
+##'
 ##' @examples
 ##'
+##' \dontrun{
 ##' ReadPlatyrrhini(path = '../Raw Data/Platyrrhini')
-
+##' }
 ReadPlatyrrhini <- function(path)
 {
     readSingleFile <- function(filename)
@@ -46,7 +50,7 @@ ReadPlatyrrhini <- function(path)
             shape <- shape [1:33, ]
         shape
     }
-    
+
     id.raw <- read.csv(paste0(path, '/semsp12.csv'))
 
     id.clean <- read.csv(paste0(path, '/GLMALL2_nodist.csv'))
@@ -57,7 +61,7 @@ ReadPlatyrrhini <- function(path)
     lms <- gsub(' ', '', lms)
     lms.A <- lms[1:33]
     lms.Z <- lms[36:length(lms)]
-    
+
     ## repeated individuals
     id.raw <- id.raw[- which(duplicated(id.raw $ ID.)), ]
     ## só 4
@@ -66,7 +70,7 @@ ReadPlatyrrhini <- function(path)
     ## só 2 (que tb se repetiam no raw)
 
     id.raw $ GENUS. <- gsub(' ', '', id.raw $ GENUS.)
-    
+
     num.raw <- as.character(id.raw $ ID.)
     num.clean <- as.character(id.clean $ ID)
 
@@ -81,7 +85,7 @@ ReadPlatyrrhini <- function(path)
 
     id.clean <- id.clean [order(num.clean), ]
     num.clean <- num.clean[order(num.clean)]
-    
+
     A <- dir(path, pattern = '\\.A.P', recursive = TRUE, ignore.case = TRUE)
     Z <- dir(path, pattern = '\\.Z.P', recursive = TRUE, ignore.case = TRUE)
 
@@ -116,7 +120,7 @@ ReadPlatyrrhini <- function(path)
                   }
                   files
               })
-        
+
     names(A.list) <- names(Z.list) <- num.raw
 
     no.files <- which(laply(A.list, function(L) length(L) == 0) |
@@ -132,10 +136,10 @@ ReadPlatyrrhini <- function(path)
     id.clean <- id.clean[-no.files, ]
 
     id.clean $ DIET <- id.raw $ DIET.
-    
+
     id.clean $ REP.A <- laply(A.list, length)
     id.clean $ REP.Z <- laply(Z.list, length)
-    
+
     A.num <- unlist(llply(1:length(A.list),
                           function(i)
                               paste(num.raw [i], 1:length(A.list [[i]]), sep = '.')))
@@ -145,25 +149,25 @@ ReadPlatyrrhini <- function(path)
                               paste(num.raw [i], 1:length(Z.list [[i]]), sep = '.')))
 
 
-    
+
     A.list <- unlist(A.list)
 
     A.misslm <- !(A.list == 'BBB/A2P/194355.A1P')
-    
+
     A.list <- A.list[A.misslm]
     A.num <- A.num[A.misslm]
     A.sh <- aaply(A.list, 1, function(f) readSingleFile(paste0(path, f)))
-   
+
     dimnames(A.sh) <- list(A.num, lms.A, c('X', 'Y', 'Z'))
 
     Z.list <- unlist(Z.list)
     Z.sh <- aaply(Z.list, 1, function(f) readSingleFile(paste0(path, f)))
 
     dimnames(Z.sh) <- list(Z.num, lms.Z, c('X', 'Y', 'Z'))
-    
+
     A.sh <- aperm(A.sh, c(2, 3, 1))
     Z.sh <- aperm(Z.sh, c(2, 3, 1))
-    
+
     list('id' = id.clean, 'A' = A.sh, 'Z' = Z.sh)
-    
+
 }
