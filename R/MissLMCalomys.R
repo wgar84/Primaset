@@ -2,7 +2,8 @@
 ##' MissLMCalomys
 ##'
 ##' @description
-##' Fill up missing landmarks in Calomys database.
+##' Fill up missing landmarks in Calomys database, grouping
+##' individuals by age class to perform interpolations based on TPS.
 ##'
 ##' @param cleanup output from CleanUpCalomys
 ##'
@@ -13,6 +14,7 @@
 ##'
 ##' @importFrom geomorph estimate.missing
 ##' @importFrom plyr alply
+##' @importFrom stats model.matrix
 ##'
 ##' @export
 ##' @rdname MissLMCalomys
@@ -56,8 +58,8 @@ MissLMCalomys <- function(cleanup)
             R1 <- coord[, , 'R1', agevec]
             R2 <- coord[, , 'R2', agevec]
 
-            R1.est <- geomorph:::estimate.missing(R1, method = 'TPS')
-            R2.est <- geomorph:::estimate.missing(R2, method = 'TPS')
+            R1.est <- estimate.missing(R1, method = 'TPS')
+            R2.est <- estimate.missing(R2, method = 'TPS')
 
             out [, , 'R1', agevec] <<- R1.est
             out [, , 'R2', agevec] <<- R2.est

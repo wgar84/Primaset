@@ -14,7 +14,8 @@ List with two elements:
 filled landmark configuration (coord) and specimen information (info).
 }
 \description{
-Fill up missing landmarks in Calomys database.
+Fill up missing landmarks in Calomys database, grouping
+individuals by age class to perform interpolations based on TPS.
 }
 \seealso{
 CleanUpCalomys

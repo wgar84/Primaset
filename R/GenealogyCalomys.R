@@ -32,7 +32,7 @@ GenealogyCalomys <- function(filled)
 
         full.ped <- rbind(p.gen, ped)
 
-        gen <- MCMCglmm:::inverseA(full.ped)
+        gen <- inverseA(full.ped)
 
         list('info' = info, 'coord' = filled $ coord, 'gen' = gen)
     }

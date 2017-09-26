@@ -24,6 +24,7 @@
 ##' @importFrom gdata read.xls
 ##' @importFrom plyr aaply alply
 ##' @importFrom shapes centroid.size
+##' @importFrom utils read.csv
 ##'
 ##' @export
 ##' @rdname ReadPlatyrrhini

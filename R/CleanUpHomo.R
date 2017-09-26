@@ -13,6 +13,7 @@
 ##' @author Guilherme Garcia
 ##'
 ##' @importFrom plyr llply aaply ldply
+##' @importFrom utils read.csv
 ##'
 ##' @export
 ##' @rdname CleanUpHomo
