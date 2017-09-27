@@ -9,6 +9,7 @@ require(viridis)
 require(doMC)
 registerDoMC(cores = 3)
 require(plotrix)
+require(webGL)
 
 load('Calomys/02_clean_up.RData')
 
@@ -117,21 +118,93 @@ calomys.wgen $ tri.sym.num <- calomys.wgen $ tri.sym.num [sort.sum, ]
 
 calomys.wgen $ bone.tri.sym <- calomys.wgen $ bone.tri.sym [sort.sum, ]
 
-#text3d(calomys.wgen $ sym.gpa $ mshape,
-#       texts = rownames(calomys.wgen $ sym.coord))
-
-coltest <- viridis(nrow(calomys.wgen $ tri.sym.num) / 2, option = 'C')
-
-coltest <- c(coltest, coltest)
-
-for(i in 1:nrow(calomys.wgen $ tri.sym.num))
-    triangles3d(calomys.wgen $ sym.gpa $ mshape[calomys.wgen $ tri.sym.num[i, ], ],
-                color = coltest[i])
-
 ### seems nice
 
 calomys.wgen $ lory.out <- LORY(calomys.wgen $ sym.coord, calomys.wgen $ tri.sym.num, TRUE)
 
 calomys.wgen $ local <- calomys.wgen $ lory.out $ local [, 1:23]
 
-calomys.wgen $ age <- calomys.wgen $ info $ AGE
+coltest <- magma(nrow(calomys.wgen $ tri.sym.num) / 2)
+
+rgl.open()
+
+ind <- 319
+
+points3d(calomys.wgen $ sym.gpa $ mshape, size = 5)
+points3d(calomys.wgen $ sym.gpa $ rotated [, , ind], col = 'cyan', size = 5)
+
+local.range <-
+    (calomys.wgen $ lory.out $ local [ind, ] -
+     min(calomys.wgen $ lory.out $ local [ind, ])) /
+    diff(range(calomys.wgen $ lory.out $ local [ind, ]))
+
+coltestFunc <- colorRamp(coltest)
+
+local.col <-
+    aaply(coltestFunc(local.range), 1,
+          function(l) rgb(l[1], l[2], l[3], maxColorValue = 256))
+
+for(i in 1:nrow(calomys.wgen $ tri.sym.num))
+    triangles3d(calomys.wgen $ sym.gpa $ rotated [calomys.wgen $ tri.sym.num[i, ], , ind],
+                color = local.col[i], alpha = 0.8)
+
+### looks nice too
+
+head(calomys.wgen $ info)
+
+calomys.wgen $ age <- calomys.wgen $ info $ AGECAT
+
+table(calomys.wgen $ age)
+
+options(contrasts = c('contr.sum', 'contr.poly'))
+
+calomys.wgen $ pheno.model <-
+    lm(calomys.wgen $ local ~ calomys.wgen $ age * calomys.wgen $ sym.cs)
+
+### so, what I want to see is if different age categories have
+### different (phenotypic) allometric relationships
+
+calomys.wgen $ pheno.model.list <- list()
+
+for(i in levels(calomys.wgen $ age))
+    calomys.wgen $ pheno.model.list [[i]] <-
+        lm(calomys.wgen $ local ~ log(calomys.wgen $ sym.cs) - 1,
+           subset = calomys.wgen $ age == i)
+
+calomys.wgen $ pheno.allo <- t(laply(calomys.wgen $ pheno.model.list, coef))
+
+colnames(calomys.wgen $ pheno.allo) <- levels(calomys.wgen $ age)
+
+## rownames(calomys.wgen $ pheno.allo) <- calomys.wgen $ bone.region
+
+
+
+### still iterating on this shit
+
+open3d()
+
+ageclass <- 6
+
+local.range <-
+    (calomys.wgen $ pheno.allo [, ageclass] -
+     min(calomys.wgen $ pheno.allo)) /
+    diff(range(calomys.wgen $ pheno.allo))
+
+coltestFunc <- colorRamp(coltest)
+
+local.col <-
+    aaply(coltestFunc(c(local.range, local.range)), 1,
+          function(l) rgb(l[1], l[2], l[3], maxColorValue = 256))
+
+for(i in 1:nrow(calomys.wgen $ tri.sym.num))
+    triangles3d(calomys.wgen $ sym.gpa $ mshape [calomys.wgen $ tri.sym.num[i, ], ],
+                color = local.col[i], alpha = 0.8)
+
+aaply(calomys.wgen $ pheno.allo, 2, Normalize) %*%
+    t(aaply(calomys.wgen $ pheno.allo, 2, Normalize))
+
+### totally have different relationships
+
+calomys2stan <- calomys.wgen
+
+save(calomys2stan, file = 'Calomys/04_2stan.RData')
