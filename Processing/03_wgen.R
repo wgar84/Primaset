@@ -1,4 +1,5 @@
 require(devtools)
+require(htmltools)
 require(roxygen2)
 require(shapes)
 require(plyr)
@@ -9,7 +10,8 @@ require(viridis)
 require(doMC)
 registerDoMC(cores = 3)
 require(plotrix)
-require(webGL)
+require(rmarkdown) 
+require(knitr)
 
 load('Calomys/02_clean_up.RData')
 
@@ -177,13 +179,13 @@ colnames(calomys.wgen $ pheno.allo) <- levels(calomys.wgen $ age)
 
 ## rownames(calomys.wgen $ pheno.allo) <- calomys.wgen $ bone.region
 
-
+summary(calomys.wgen $ pheno.model.list [[3]])
 
 ### still iterating on this shit
 
 open3d()
 
-ageclass <- 6
+ageclass <- 1
 
 local.range <-
     (calomys.wgen $ pheno.allo [, ageclass] -
@@ -197,8 +199,9 @@ local.col <-
           function(l) rgb(l[1], l[2], l[3], maxColorValue = 256))
 
 for(i in 1:nrow(calomys.wgen $ tri.sym.num))
-    triangles3d(calomys.wgen $ sym.gpa $ mshape [calomys.wgen $ tri.sym.num[i, ], ],
-                color = local.col[i], alpha = 0.8)
+    triangles3d(
+        mshape(calomys.wgen $ sym.gpa $ rotated [, , calomys.wgen $ age == levels(calomys.wgen $ age)[ageclass]]) [calomys.wgen $ tri.sym.num[i, ], ],
+                color = local.col[i], alpha = 0.95)
 
 aaply(calomys.wgen $ pheno.allo, 2, Normalize) %*%
     t(aaply(calomys.wgen $ pheno.allo, 2, Normalize))
@@ -208,3 +211,6 @@ aaply(calomys.wgen $ pheno.allo, 2, Normalize) %*%
 calomys2stan <- calomys.wgen
 
 save(calomys2stan, file = 'Calomys/04_2stan.RData')
+
+render('04_calomys_output.Rmd')
+browseURL('04_calomys_output.html', 'google-chrome')
