@@ -179,35 +179,42 @@ colnames(calomys.wgen $ pheno.allo) <- levels(calomys.wgen $ age)
 
 ## rownames(calomys.wgen $ pheno.allo) <- calomys.wgen $ bone.region
 
-summary(calomys.wgen $ pheno.model.list [[3]])
-
-### still iterating on this shit
-
-open3d()
-
-ageclass <- 1
-
-local.range <-
-    (calomys.wgen $ pheno.allo [, ageclass] -
-     min(calomys.wgen $ pheno.allo)) /
-    diff(range(calomys.wgen $ pheno.allo))
-
-coltestFunc <- colorRamp(coltest)
-
-local.col <-
-    aaply(coltestFunc(c(local.range, local.range)), 1,
-          function(l) rgb(l[1], l[2], l[3], maxColorValue = 256))
-
-for(i in 1:nrow(calomys.wgen $ tri.sym.num))
-    triangles3d(
-        mshape(calomys.wgen $ sym.gpa $ rotated [, , calomys.wgen $ age == levels(calomys.wgen $ age)[ageclass]]) [calomys.wgen $ tri.sym.num[i, ], ],
-                color = local.col[i], alpha = 0.95)
-
 aaply(calomys.wgen $ pheno.allo, 2, Normalize) %*%
     t(aaply(calomys.wgen $ pheno.allo, 2, Normalize))
 
 ### totally have different relationships
 
+### nice plots
+
+for (j in 1:length(levels(calomys.wgen $ age)))
+{
+    open3d()
+
+    ageclass <- j
+
+    local.range <-
+        (calomys.wgen $ pheno.allo [, ageclass] - min(calomys.wgen $ pheno.allo)) /
+        diff(range(calomys.wgen $ pheno.allo))
+
+    coltestFunc <- colorRamp(coltest)
+
+    local.col <-
+        aaply(coltestFunc(c(local.range, local.range)), 1,
+              function(l) rgb(l[1], l[2], l[3], maxColorValue = 256))
+
+    age.mshape <-
+        mshape(calomys.wgen $ sym.gpa $ rotated [, , calomys.wgen $ age ==
+                                                     levels(calomys.wgen $ age)[ageclass]])
+
+    triads <- NULL
+    for(i in 1:nrow(calomys.wgen $ tri.sym.num))
+        triads <- rbind(triads, age.mshape[calomys.wgen $ tri.sym.num[i, ], ])
+
+    triangles3d(triads, color = rep(local.col, each = 3)) ### rep for each vertex
+}
+
+
+### save 4 stan
 calomys2stan <- calomys.wgen
 
 save(calomys2stan, file = 'Calomys/04_2stan.RData')
