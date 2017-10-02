@@ -11,7 +11,7 @@ knit_hooks$set(webgl = hook_webgl)
 
 ## Age Class 1
 
-```{r age1, webgl = TRUE, echo = FALSE}
+```{r age1, webgl = TRUE, echo = FALSE, fig.cap = 'Age Class 1 (~ 20-40)'}
 ageclass <- 1
 
 local.range <-
@@ -31,7 +31,7 @@ age.mshape <-
 
 triads <- NULL
 for(i in 1:nrow(calomys.wgen $ tri.sym.num))
-    triplot <- rbind(triplot, age.mshape[calomys.wgen $ tri.sym.num[i, ], ])
+    triads <- rbind(triads, age.mshape[calomys.wgen $ tri.sym.num[i, ], ])
 
 tri.plot <- triangles3d(triads, color = rep(local.col, each = 3))['data']
 ```

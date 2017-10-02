@@ -219,5 +219,5 @@ calomys2stan <- calomys.wgen
 
 save(calomys2stan, file = 'Calomys/04_2stan.RData')
 
-render('04_calomys_output.Rmd')
+render('04_calomys_output.Rmd', output_file = '../docs/04_calomys_output.html')
 browseURL('04_calomys_output.html', 'google-chrome')
