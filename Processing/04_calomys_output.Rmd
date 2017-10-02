@@ -35,3 +35,30 @@ for(i in 1:nrow(calomys.wgen $ tri.sym.num))
 
 tri.plot <- triangles3d(triads, color = rep(local.col, each = 3))['data']
 ```
+
+## Age Class 2
+
+```{r age2, webgl = TRUE, echo = FALSE, fig.cap = 'Age Class 1 (~ 20-40)'}
+ageclass <- 2
+
+local.range <-
+    (calomys.wgen $ pheno.allo [, ageclass] -
+     min(calomys.wgen $ pheno.allo)) /
+    diff(range(calomys.wgen $ pheno.allo))
+
+coltestFunc <- colorRamp(coltest)
+
+local.col <-
+    aaply(coltestFunc(c(local.range, local.range)), 1,
+          function(l) rgb(l[1], l[2], l[3], maxColorValue = 256))
+
+age.mshape <-
+    mshape(calomys.wgen $ sym.gpa $ rotated [, , calomys.wgen $ age ==
+                                                 levels(calomys.wgen $ age)[ageclass]])
+
+triads <- NULL
+for(i in 1:nrow(calomys.wgen $ tri.sym.num))
+    triads <- rbind(triads, age.mshape[calomys.wgen $ tri.sym.num[i, ], ])
+
+tri.plot <- triangles3d(triads, color = rep(local.col, each = 3))['data']
+```
