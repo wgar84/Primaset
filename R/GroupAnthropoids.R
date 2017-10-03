@@ -17,8 +17,13 @@
 ##' Since this package expands upon the original DB, specimens previously unused will have their
 ##' taxonomic information updated according to the original resolution.
 ##'
-##' This function also averages replicates when available. However, it retains the replicates thus
-##' allowing estimating repeatabilities.
+##' This function also averages replicates when available. However, it retains the replicates
+##' thus allowing estimating repeatabilities.
+##'
+##' However, to do this, the function should also complete missing landmarks; ideally, it should
+##' ##' do this by species.
+##'
+##' So, first we correct info
 ##' 
 ##' @author Guilherme Garcia
 ##'
@@ -43,20 +48,27 @@ GroupAnthropoids <- function(catarrhine, platyrrhine, homo, prev)
         cata.info <- catarrhine $ info
         homo.info <- homo $ info
 
+        ## juntando ids
+        
         cata.info $ ID <- laply(strsplit(as.character(cata.info $ ID), '_'),
                                 function(L) paste(L[1], L[2], sep = '_'))
 
         plat.info $ ID <- paste(plat.info $ MUSEUM, plat.info $ ID, sep = '_')
-
-        platyrrhine 
-
-
-        
+                            
         rownames(cata.info) <- NULL
         
         full.cata.info <- rbind(cata.info, homo.info)
 
-        anthro.info <- rbind.fill(plat.info, full.cata.info)
+        common.data <- rbind.fill(plat.info, full.cata.info)
         
+        ### fill this crap up
+        
+        common.coord <- array(0, c(36, 3, nrow(common.data)))
+
+        common.rep <- array(0, c(36, 3, 2, nrow(common.data)))
+
+        cata.mshape <- aaply(catarrhine $ coord, 4, function(shrep) procGPA(shrep) $ mshape)
+        
+
     }
 
