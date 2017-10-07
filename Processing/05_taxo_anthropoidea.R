@@ -13,22 +13,13 @@ require(plotrix)
 require(rmarkdown) 
 require(knitr)
 
-## consolidados da tese
-load('../Raw Data/def.info.RData')
+##
+load('Platyrrhini/02_clean_up.RData')
+load('Catarrhini/02_clean_up.RData')
+load('Homo/02_clean_up.RData')
 
+## this takes a while to run
+anthropoids <- GroupAnthropoids(platyrrhini.cleanup, catarrhini.cleanup, homo.cleanup)
 
-## batendo as planilhas
+save(anthropoids, file = 'Anthropoidea/05_from_grouping.RData')
 
-platyrrhine <- platyrrhini.cleanup
-catarrhine <- catarrhini.cleanup
-homo <- homo.cleanup
-prev <- def.info
-
-museum.ids <-
-    c(paste(plat.info $ MUSEUM, plat.info $ ID, sep = '_'), 
-      laply(strsplit(as.character(cata.info $ ID), '_'),
-            function(L) paste(L[1], L[2], sep = '_')),
-      paste(gsub("[[:digit:]]", "", homo.info $ ID),
-            homo.info $ ID, sep = '_'))
-
-prev.info [!paste(prev.info $ MSM, prev.info $ ID, sep = '_') %in% museum.ids, ]
