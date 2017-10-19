@@ -8,7 +8,10 @@
 ##' @param catarrhine Catarrhini DB, output of CleanUpCatarrhini
 ##' @param homo Homo DB, output of CleanUpHomo
 ##'
-##' @return some list
+##' @return list with three elements,
+##' info (specimen information),
+##' coord (coordinates for all individuals), and
+##' rep (individuals for which replicas are available, identified in info $ REP).
 ##' 
 ##' @details This function will solve taxonomic issues resolved during G. Garcia's phD; examples
 ##' include subspecies lifted to species (e.g. Chiropotes).

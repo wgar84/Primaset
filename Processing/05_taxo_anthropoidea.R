@@ -19,7 +19,9 @@ load('Catarrhini/02_clean_up.RData')
 load('Homo/02_clean_up.RData')
 
 ## this takes a while to run
-anthropoids <- GroupAnthropoids(platyrrhini.cleanup, catarrhini.cleanup, homo.cleanup)
+anthropoids <- GroupAnthropoids(platyrrhini.cleanup,
+                                catarrhini.cleanup,
+                                homo.cleanup)
 
 save(anthropoids, file = 'Anthropoidea/05_from_grouping.RData')
 
