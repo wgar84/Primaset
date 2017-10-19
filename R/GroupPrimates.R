@@ -4,8 +4,8 @@
 ##' @description
 ##' This functions unifies Prosimian and Anthropoid databases in a single object.
 ##'
-##' @param prosimian Prosimian DB, output of CleanUpProsimian
-##' @param anthropoid Anthropoid DB, output of GroupAnthropoids
+##' @param prosimians Prosimian DB, output of CleanUpProsimian
+##' @param anthropoids Anthropoid DB, output of GroupAnthropoids
 ##'
 ##' @return some list
 ##' 
@@ -16,7 +16,13 @@
 ##' @importFrom plyr aaply alply
 ##' 
 ##' @seealso CleanUpCatarrhini CleanUpPlatyrrhini CleanUpHomo
-GroupPrimates <- function(prosimian, anthropoid)
+GroupPrimates <- function(prosimians, anthropoids)
 {
+    ## find me the halflings
+    halflings <-
+        aaply(prosimians $ coord [, 1, 1, ], 2, function(c) sum(is.na(c)) > 21)
+
+    ## mirror then symmetrize?
+    
     
 }

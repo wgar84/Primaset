@@ -22,10 +22,10 @@ rm(prosimian.cleanup)
 
 dimnames(prosimians $ coord) [[4]] <- prosimians $ id $ Ind
 
-## for half skulls, mirror then symmetrize?
+## for half skulls, 
 
 dimnames(prosimians $ coord) [[4]] [duplicated(dimnames(prosimians $ coord) [[4]])]
 
- <- aaply(prosimians $ coord [, 1, 1, ], 2, function(c) sum(is.na(c)) > 20)
+
 
 ## for single replicates, we just discard one and 
