@@ -63,3 +63,4 @@ ggplot(prima.ss.df) +
     guides(color = guide_legend (ncol = 3))
 
 ggsave('primate_allo.pdf')
+
