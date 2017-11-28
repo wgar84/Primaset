@@ -41,7 +41,8 @@ prima.ss.df <- data.frame(prima.gpa $ scores [, 1:2],
 grad <- colorRampPalette(brewer.pal(8, "Spectral"), space="Lab")
 
 ggplot(prima.ss.df) +
-    geom_point(aes(x = PC1, y = PC2, color = GEN, shape = MAJOR)) +
+    geom_text(aes(x = PC1, y = PC2, color = GEN, label = substr(GEN, 1, 3)),
+              size = 3, alpha = 0.8) +
     scale_color_manual('Genus', values = grad(length(unique(prima.ss.df $ GEN)))) +
     scale_shape_discrete('Major Group') +
     theme_bw() +
@@ -50,3 +51,15 @@ ggplot(prima.ss.df) +
     guides(color = guide_legend (ncol = 3))
 
 ggsave('primate_shape.pdf')
+
+ggplot(prima.ss.df) +
+    geom_text(aes(y = PC1, x = logCS, color = GEN, label = substr(GEN, 1, 3)),
+              size = 3, alpha = 0.8) +
+    scale_color_manual('Genus', values = grad(length(unique(prima.ss.df $ GEN)))) +
+    scale_shape_discrete('Major Group') +
+    theme_bw() +
+    xlab('Shape PC1') +
+    ylab('Shape PC2') +
+    guides(color = guide_legend (ncol = 3))
+
+ggsave('primate_allo.pdf')

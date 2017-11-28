@@ -9,6 +9,7 @@
 ##' @param parallel use registered parallel backend? (probably only works in linux now)
 ##' 
 ##' @importFrom plyr laply aaply alply
+##' @importFrom shapes procGPA
 ##' 
 ##' @export
 ##' @rdname LORY
@@ -18,7 +19,7 @@ LORY <- function (coords, tesselation, parallel)
     {
         gpa <- procGPA(coords)
         mshape <- gpa $ mshape
-        
+        print('gpa done')
         dimnames (mshape) <- dimnames (coords) [1:2]
         tps <- alply (gpa $ rotated, 3, ThinPlateSpline,
                       reference.shape = mshape, .parallel = parallel)

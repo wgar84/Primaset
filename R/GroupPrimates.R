@@ -7,7 +7,11 @@
 ##' @param prosimians Prosimian DB, output of CleanUpProsimian
 ##' @param anthropoids Anthropoid DB, output of GroupAnthropoids
 ##'
-##' @return some list
+##' @return list with four elements:
+##' extinct: fossil and subfossil prosimians (list with two elements, info and coord),
+##' coord: array with individual coordinate data
+##' rep: array with individuals with replicated measurements,
+##' info: specimen information
 ##' 
 ##' @author Guilherme Garcia
 ##'
@@ -65,7 +69,10 @@ GroupPrimates <- function(prosimians, anthropoids)
     sp.solo <- gsub('PROLEMUR', 'Prolemur', sp.solo)
     sp.solo <- gsub('SIMUS', 'simus', sp.solo)
     sp.solo <- gsub('coquerelli', 'coquereli', sp.solo)
-   
+    sp.solo <- gsub('\\?', '', sp.solo)
+    sp.solo <- gsub('callabarensis', 'calabarensis', sp.solo)
+    sp.solo <- gsub('madasgariensis', 'madagascariensis', sp.solo)
+    
     for(i in unique(raw.id $ GEN))
     {
         sp.solo <- gsub(i, '', sp.solo)
@@ -88,10 +95,6 @@ GroupPrimates <- function(prosimians, anthropoids)
     sec.sp[pri.sp != '' & !is.na(sec.sp)] <- pri.sp [pri.sp != '' & !is.na(sec.sp)]
     
     sec.sp[sec.sp == 'sp.'] <- NA
-
-    sec.sp <- gsub('?', '', sec.sp)
-
-    tir.sp <- gsub('?', '', tir.sp)
     
     collections <-
         c('AMNH','FMNH', 'USNM', 'MCZ', 'FPDuke',
@@ -348,6 +351,33 @@ GroupPrimates <- function(prosimians, anthropoids)
     dimnames(prima.rep) [[4]] <- prima.info $ ID [prima.info $ REP]
 
     dimnames(prima.coord) [[3]] <- prima.info $ ID
+
+    ## still some sp name corrections
+
+    prima.info $ SPE <- gsub('macrocephalu', 'macrocephalus', prima.info $ SPE)
+    prima.info $ SPE <- gsub('cassiquiaren', 'cassiquiarensis', prima.info $ SPE)
+    prima.info $ SPE <- gsub('klossi', 'klossii', prima.info $ SPE)
+    prima.info $ SPE <- gsub('thibethana', 'thibetana', prima.info $ SPE)
+    prima.info $ SPE <- gsub('aequatoriali', 'aequatorialis', prima.info $ SPE)
+    prima.info $ SPE <- gsub('xanthosterno', 'xanthosternos', prima.info $ SPE)
+    prima.info $ SPE <- gsub('nigrivitattu', 'nigrivitattus', prima.info $ SPE)
+    prima.info $ SPE <- gsub('sandfordi', 'sanfordi', prima.info $ SPE)
+    prima.info $ SPE <- gsub('ruffifrons', 'rufifrons', prima.info $ SPE)
+
+    prima.info $ SPE[prima.info $ SPE == 'klossi'] <- 'klossii' 
+    prima.info $ SPE[prima.info $ SPE == ''] <- NA
+
+    prima.info <-
+        as.data.frame(lapply(prima.info, function(c) if(is.factor(c)) factor(c) else c))
+
+    ## fucking POLHEMUS
+    prima.coord [, , prima.info $ MAJOR == 'Platyrrhini'] <- 
+        prima.coord [, , prima.info $ MAJOR == 'Platyrrhini'] * 10
+
+    prima.rep [, , , subset(prima.info, REP) $ MAJOR == 'Platyrrhini'] <- 
+        prima.rep [, , , subset(prima.info, REP) $ MAJOR == 'Platyrrhini'] * 10
+
+    
     
     return(list('extinct' = extinct, 'info' = prima.info,
                 'coord' = prima.coord, 'rep' = prima.rep))

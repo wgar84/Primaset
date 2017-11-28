@@ -69,22 +69,17 @@ Center2MeanJacobian <- function (jacobArray, max.steps = 100)
         Mk <- diag (nrow (A))
         i <- 1
         repeat
-            {
-              inv.Mk <- solve (Mk)
-              centered.now <- apply (A, 3, logm.single, inv.Mk = inv.Mk)
-              o <- array (- rowMeans (centered.now), c(nrow (A), nrow (A)))
-              if (all (abs (o) < .Machine$double.eps))
-                {
-                    break
-                }
-              Mk <- expm (- o) %*% Mk
-              i <- i + 1
-              if (i == max.steps)
-                {
-                  # print ('Did not converge.')
-                  stop ('Convergence has not been achieved in number of steps.')
-                }
-            }
+        {
+            inv.Mk <- solve (Mk)
+            centered.now <- apply (A, 3, logm.single, inv.Mk = inv.Mk)
+            o <- array (- rowMeans (centered.now), c(nrow (A), nrow (A)))
+            if (all (abs (o) < .Machine$double.eps))
+                break
+            Mk <- expm (- o) %*% Mk
+            i <- i + 1
+            if (i == max.steps)
+                stop ('Convergence has not been achieved in number of steps.')
+        }
         centered.now <- array (centered.now, c(nrow (A), nrow (A), N))
         log.det <- apply (centered.now, 3, function (x) return (sum (diag (x))))
         return (log.det)
