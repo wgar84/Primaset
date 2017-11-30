@@ -48,37 +48,66 @@ dimnames(primates $ rep) [[4]] <- primates $ info $ ID [primates $ info $ rep]
 
 primates $ info $ ID <- factor(primates $ info $ ID)
 
-primates $ sym.coord <- aaply(primates $ coord, 3, Symmetrize, .parallel = TRUE)
+prima.sym <- list()
 
-primates $ sym.coord <- aperm(primates $ sym.coord, c(2, 3, 1))
+prima.sym $ coord <- aaply(primates $ coord, 3, Symmetrize, .parallel = TRUE)
 
-dimnames(primates $ sym.coord) [3]
+prima.sym $ coord <- aperm(prima.sym $ coord, c(2, 3, 1))
 
-## LORY
-
-primates $ sym.lory <- LORY(primates $ sym.coord, Aux $ single.tessel.38, TRUE)
-
-primates $ info $ GSP <- paste(primates $ info $ GEN, primates $ info $ SPE, sep = '_')
+dimnames(prima.sym $ coord) [3]
 
 ## RENAME OBJECTS
 
-prima.lory <- primates $ sym.lory
-
-prima.lory $ info <- primates $ info
-
 prima.info <- prima.lory $ info
 
-prima.lory <- prima.lory[-6]
-    
-save(prima.lory, file = 'Primates/LORY.RData')
+prima.info $ GSP <- paste(prima.info $ GEN, prima.info $ SPE, sep = '_')
 
 save(prima.info, file = 'Primates/Info.RData')
 
-prima.raw <- primates [-6]
+prima.raw <- primates [-2]
+
+save(prima.raw, file = 'Primates/Raw.RData')
+
+save(prima.sym, file = 'Primates/Sym.RData')
 
 rm(primates)
 
-save(prima.raw, file = 'Primates/Raw.RData')
+## tem que arrumar a ordem do single.tessel.38
+
+prima.aux <- list()
+
+prima.aux $ distance.matrix <-
+    matrix(unlist(strsplit(rownames(Aux $ def.hyp) [-1], '\\.')), nrow = 38, byrow = TRUE)
+
+prima.aux $ distance.numbers <- array(0, dim(prima.aux $ distance.matrix))
+
+for(i in 1:38)
+    for (j in 1:2)
+        prima.aux $ distance.numbers[i, j] <-
+            which(grepl(prima.aux $ distance.matrix [i, j],
+                        rownames(prima.sym $ coord))) [1]
+
+## ED
+
+prima.ed <- list()
+
+prima.ed $ raw <-
+    aaply(prima.sym $ coord, 3, EuclideanDistances, dists = prima.aux $ distance.numbers,
+          .parallel = TRUE)
+
+colnames(prima.ed $ raw) <- aaply(prima.aux $ distance.matrix, 1, paste, collapse = '.')
+
+rownames(prima.ed $ raw) <- prima.info $ ID
+
+save(prima.ed, file = 'Primates/ed.RData')
+
+## LORY
+
+## first no local to see if there's any negative determinants
+prima.lory <- LORY(prima.sym $ coord, prima.aux $ distance.numbers, TRUE)
+
+
+## down this point, I did some tests that can be ignored later
 
 ## start tests on stan (saguinus)
 
@@ -107,7 +136,7 @@ sag.plot <-
 
 ggsave(file = 'sag.pdf', plot = sag.plot, width = 12, height = 10)
 
-## generate stan input
+## generate stan input (saguinus)
 
 sag.modmat <- model.matrix(~ sub, data = sag.df)
 
@@ -166,3 +195,73 @@ sag.rs.dist <-
 pdf('histRS.pdf', width = 10, height = 10)
 hist(sag.rs.dist [, 1])
 dev.off(dev.cur())
+
+## generate stan input (homo)
+
+hom.local <- prima.lory $ local [prima.info $ GSP == 'Homo_sapiens', ]
+
+hom.df <-
+    data.frame('sub' = subset(prima.info, GSP == 'Homo_sapiens') $ SUB,
+               'sex' = subset(prima.info, GSP == 'Homo_sapiens') $ SEX,
+               'cs' = log(prima.lory $ cs [prima.info $ GSP == 'Homo_sapiens']))
+               
+hom.df $ sub <- factor(hom.df $ sub)
+hom.df $ sex <- factor(hom.df $ sex)
+
+hom.modmat <- model.matrix(~ sub * sex, data = hom.df)
+
+hom.data <- cbind(hom.df $ cs, hom.local)
+
+hom.input <- list('N' = nrow(hom.data),
+                  'J' = ncol(hom.modmat),
+                  'K' = ncol(hom.data),
+                  'Y' = hom.data,
+                  'X' = hom.modmat)
+
+initialConditions <-
+    function(i, traits, effects)
+        list('Omega_P' = chol(RandomMatrix(traits)),
+             'sigma_P' = rchisq(traits, 1),
+             'beta' = matrix(rnorm(traits * effects, 0, 1), nrow = traits))
+
+hom.test <- 
+    stan('../Stan/pmatrix_lm.stan', data = hom.input, thin = 10, pars = c('beta', 'P'),
+         init = alply(1:4, 1, initialConditions,
+                      traits = hom.input $ K, effects = hom.input $ J))
+
+## model diagnostics
+
+hom.post <- extract(hom.test)
+
+hom.lp <- extract(hom.test, pars = 'lp__', permuted = FALSE)
+
+pdf('hom_lp.pdf', width = 10, height = 10)
+
+par(mfcol = c(2, 2))
+for(i in 1:4) ## chains
+    plot(hom.lp [, i, 1], type = 'l', main = paste('Chain', i),
+         xlab = 'iterate', ylab = 'log prob')
+
+dev.off(dev.cur())
+
+
+pdf('sampledMat.pdf', width = 10, height = 10)
+color2D.matplot(cov2cor(hom.post $ P [2, , ]))
+dev.off(dev.cur())
+
+hom.lm <- lm(hom.data ~ hom.df $ sub * hom.df $ sex)
+
+hom.mlmat <- CalculateMatrix(hom.lm)
+
+pdf('maxlikMat.pdf', width = 10, height = 10)
+color2D.matplot(cov2cor(hom.mlmat))
+dev.off(dev.cur())
+
+## RS
+hom.rs.dist <-
+    aaply(hom.post $ P, 1, RandomSkewers, cov.y = hom.mlmat, .parallel = TRUE)
+
+pdf('histRS.pdf', width = 10, height = 10)
+hist(hom.rs.dist [, 1])
+dev.off(dev.cur())
+
