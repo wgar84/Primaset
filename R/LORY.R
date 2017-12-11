@@ -30,6 +30,7 @@ LORY <- function (coords, tesselation, parallel)
         print ('jacobs done')
         local <- aaply (jacobs, 4, Center2MeanJacobian, .parallel = parallel)
         local <- t (local)
+        print ('local done, finish')
         return (list ('tps' = tps,
                       'jacobians' = jacobs,
                       'local' = local,
