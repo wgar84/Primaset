@@ -7,6 +7,7 @@
 ##' @param data matrix of individual data
 ##' @param model character string with model specifications, referring to columns in info
 ##' @param info fixed effects
+##' @param modelpath path to stan file
 ##' @param full.output should output full fitted model object?
 ##'                    defaults to FALSE (outputs only posterior P)
 ##' @param ... possibly extra parameters for stan model fitting
@@ -18,7 +19,9 @@
 ##'
 ##' @author Guilherme Garcia
 ##'
-PmatrixPosterior <- function(data, model, info, full.output = FALSE, ...)
+PmatrixPosterior <- function(data, model, info,
+                             modelpath = '../Stan/pmatrix_lm.stan',
+                             full.output = FALSE, ...)
     {
         ## type III sum of squares
         options(contrasts = c('contr.sum', 'contr.poly'))
@@ -43,7 +46,7 @@ PmatrixPosterior <- function(data, model, info, full.output = FALSE, ...)
                           'X' = modmat)
 
         modelfit <-
-            stan(file = '../Stan/pmatrix_lm.stan',
+            stan(file = modelpath,
                  data = mod.input,
                  pars = c('beta', 'P'), chains = 1,
                  init = list(initialConditions(1, 
