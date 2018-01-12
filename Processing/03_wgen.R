@@ -186,6 +186,8 @@ aaply(calomys.wgen $ pheno.allo, 2, Normalize) %*%
 
 ### nice plots
 
+calomys.wgen <- calomys2stan
+
 for (j in 1:length(levels(calomys.wgen $ age)))
 {
     open3d()
