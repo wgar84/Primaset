@@ -243,7 +243,6 @@ allo.data <-
 allo.data $ main.df[, c('mpPC1', 'mpPC2', 'mpPC3')] <-
                 predict(allo.data $ multi.rreg, marginal = NULL)
 
-
 ggplot(allo.data $ main.df) +
     geom_point(aes(x = lnCS, y = PC.1), alpha = 0.1) +
     geom_line(aes(x = lnCS, y = mpPC1, color = genus, group = animal))
@@ -253,8 +252,19 @@ ggplot(allo.data $ main.df) +
     geom_line(aes(x = lnCS, y = mpPC2, color = genus, group = animal))
 
 ggplot(subset(allo.data $ main.df, genus == 'Loris')) +
-#ggplot(allo.data $ main.df) +
+##ggplot(allo.data $ main.df) +
     geom_text(aes(x = lnCS, y = PC.3, label = substr(genus, 1, 3)), alpha = 0.1) +
     geom_line(aes(x = lnCS, y = mpPC3, color = genus, group = animal))
 
-allo.data $ multi.rreg $ Sol
+
+allo.data $ ssizes <- table(allo.data $ main.df $ animal)
+
+allo.data $ models $ SSIZE <-
+                         allo.data $ ssizes [match(allo.data $ models $ GSP,
+                                                   names(allo.data $ ssizes))]
+
+
+
+tail(allo.data $ models)
+
+vcvPhylo(allo.data $ phy)
