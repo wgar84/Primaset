@@ -5,21 +5,21 @@ data {
   int ni[m]; // sample sizes
   int ni_max; // max ni
   vector[k] Y[m, ni_max]; // data (projections along PCs)
-  real<lower = 0> X[m, ni_max]; // predictor variable (centroid size)
+  matrix[m, ni_max] X; // predictor variable (centroid size)
 }
 
 parameters {
 
   /** regression parameters **/
   
-  real[k] as_term[m];
-  real[k] bs_term[m];
+  vector[k] as_term[m];
+  vector[k] bs_term[m];
 
-  real[k] as_anc[m - 2];
-  real[k] bs_anc[m - 2];
+  vector[k] as_anc[m - 2];
+  vector[k] bs_anc[m - 2];
 
-  real[k] as_root;
-  real[k] bs_root;
+  vector[k] as_root;
+  vector[k] bs_root;
 
   /** variances **/
 
@@ -43,6 +43,8 @@ model {
 
   /** priors? **/
 
+  /**
+  
   /** intercepts **/
   for(i in 1:m)
     as_center[i] = to_row_vector(as_term[i] - as_root);
@@ -55,7 +57,7 @@ model {
   ldetSigma_a = log_determinant(Sigma_a);
   
   target +=
-    - 0.5 * trace_gen_quad_form(cov_phylo, invSigma_a, as_center)
+    - 0.5 * trace_gen_quad_form(invSigma_a, cov_phylo, as_center)
     - (m - 1) * ldetSigma_a;
 
   /** slopes **/
@@ -70,7 +72,7 @@ model {
   ldetSigma_b = log_determinant(Sigma_b);
   
   target +=
-    - 0.5 * trace_gen_quad_form(cov_phylo, invSigma_b, bs_center)
+    - 0.5 * trace_gen_quad_form(invSigma_b, cov_phylo, bs_center)
     - (m - 1) * ldetSigma_b;
   
   /** pops **/

@@ -14,6 +14,25 @@ require(tidyr)
 require(viridis)
 require(phytools)
 
+## install.packages(
+##     c(
+##         'devtools', 
+##         'shapes', 
+##         'geomorph', 
+##         'rstan', 
+##         'plyr', 
+##         'RColorBrewer', 
+##         'evolqg', 
+##         'plotrix', 
+##         'doMC', 
+##         'dplyr', 
+##         'magrittr', 
+##         'tidyr', 
+##         'viridis', 
+##         'phytools'
+##      ), dependencies = TRUE)
+
+
 registerDoMC(cores = 3)
 
 load('Primates/Info.RData')
@@ -263,8 +282,73 @@ allo.data $ models $ SSIZE <-
                          allo.data $ ssizes [match(allo.data $ models $ GSP,
                                                    names(allo.data $ ssizes))]
 
+## Stan
 
+## rstan_options(auto_write = TRUE)
+## options(mc.cores = 32)
 
-tail(allo.data $ models)
+## phylo (Ainv)
+covphylo.to.stan <- inverseA(allo.data $ phy.force)
 
-vcvPhylo(allo.data $ phy)
+allo.data$main.df$animal <-
+    factor(as.character(allo.data $ main.df $ animal),
+           levels = allo.data $ phy.force $ tip.label)
+
+pc.to.stan <-
+    dlply(allo.data $ main.df, .(animal),
+          function(sub.df)
+          {
+              as.matrix(sub.df [, c('lnCS', 'PC.1', 'PC.2', 'PC.3', 'PC.4')])
+          })
+
+max(allo.data $ models $ SSIZE)
+
+         
+pc.to.stan <-
+    laply(pc.to.stan,
+          function(block)
+          {
+              max.nrow <- max(allo.data $ models $ SSIZE)
+
+              if(max.nrow == nrow(block))
+                  return(block)
+
+              rbind(block, 
+                    matrix(0, nrow = max.nrow - nrow(block), ncol = ncol(block)))
+          })
+
+## montando lista
+
+allo.data $ list4stan <- 
+    list('k' = dim(pc.to.stan)[3] - 1,
+         'm' = dim(pc.to.stan)[1],
+         'cov_phylo' = as.matrix(covphylo.to.stan $ Ainv),
+         'ni' = as.vector(table(allo.data$main.df$animal)),
+         'ni_max' = max(as.vector(table(allo.data$main.df$animal))),
+         'Y' = pc.to.stan[, , 2:dim(pc.to.stan)[3]],
+         'X' = pc.to.stan[, , 1])
+
+allo.data $ initialConditions4stan <-
+    function(i = 1, k, m)
+        list('as_term' = array(rnorm(k * m, 3), c(m, k)),
+             'bs_term' = array(rnorm(k * m, 3), c(m, k)),
+             'as_anc' = array(rnorm(k * (m - 2), 3), c(m - 2, k)),
+             'bs_anc' = array(rnorm(k * (m - 2), 3), c(m - 2, k)),
+             'as_root' = rnorm(k, 3),
+             'bs_root' = rnorm(k, 3),
+             'Sigma_e' = var(array(rnorm(k ^ 2), c(k, k))),
+             'Sigma_a' = var(array(rnorm(k ^ 2), c(k, k))),
+             'Sigma_b' = var(array(rnorm(k ^ 2), c(k, k))))
+
+options(mc.cores = 2)
+
+allo.data $ stan.out.4PC <-
+                stan(file = '../Stan/random_reg_One.stan',
+                     data = allo.data $ list4stan,
+                     chains = 1)
+                     ## init =
+                     ##     list(allo.data $ initialConditions4stan(
+                     ##                          k = allo.data $ list4stan $ k,
+                     ##                          m = allo.data $ list4stan $ m)))
+
+plot(allo.data $ stan.out.4PC)
