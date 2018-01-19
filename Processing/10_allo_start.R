@@ -304,7 +304,7 @@ pc.to.stan <-
 max(allo.data $ models $ SSIZE)
 
          
-pc.to.stan <-
+allo.data $ pc.to.stan <-
     laply(pc.to.stan,
           function(block)
           {
