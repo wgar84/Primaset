@@ -11,7 +11,7 @@ require(dplyr)
 require(magrittr)
 require(tidyr)
 
-registerDoMC(cores = 4)
+registerDoMC(cores = 60)
 
 ## stan uses different backend now
 rstan_options(auto_write = TRUE)
@@ -531,7 +531,7 @@ dev.off(dev.cur())
 
 prima.log <- list()
 
-prima.log $ raw <- log(prima.ed $ raw)
+prima.log $ raw <- log(prima.ed $ raw[, -29], 10) ## -APETTS
 
 prima.log $ pca <- prcomp(prima.log $ raw, retx = TRUE)
 
@@ -551,7 +551,7 @@ ggsave(
         guides(color = guide_legend(ncol = 3))
     )
 
-registerDoMC(cores = 32)
+registerDoMC(cores = 142)
 
 prima.log $ post.Pmat <- 
     aaply(as.character(prima.aux $ models $ GSP), 1,
@@ -569,28 +569,17 @@ prima.log $ post.Pmat <-
                                    info = cur.info,
                                    modelpath = '../Stan/pmatrix_lm_norm.stan',
                                    full.output = FALSE,
-                                   thin = 10)
-              
+                                   thin = 10)             
               cur.Pmat
           }, .parallel = TRUE)
 
-dimnames(post.Pmat) [[1]] <- 
-    c(as.character(prima.aux $ models $ GSP [prima.aux $ models $ MOD == 'NONE']), 
-      as.character(prima.aux $ models $ GSP [prima.aux $ models $ MOD == 'SEX']),
-      as.character(prima.aux $ models $ GSP [prima.aux $ models $ MOD != 'SEX' &
-                                             prima.aux $ models $ MOD != 'NONE']))
+dimnames(prima.log $ post.Pmat) [[1]] <- as.character(prima.aux $ models $ GSP)
 
-dimnames(post.Pmat)[[3]] <-
-    dimnames(post.Pmat)[[4]] <-
+dimnames(prima.log $ post.Pmat)[[3]] <-
+    dimnames(prima.log $ post.Pmat)[[4]] <-
     colnames(prima.lory $ local)
 
-prima.log $ post.Pmat <- aperm(post.Pmat, c(3, 4, 2, 1))
-
-prima.log $ post.Pmat <-
-    prima.log $ post.Pmat [, , , match(prima.aux $ models $ GSP,
-                                        dimnames(prima.log $ post.Pmat) [[4]])]
-
-save(prima.log, file = 'Primates/ed.RData')
+prima.log $ post.Pmat <- aperm(prima.log $ post.Pmat, c(3, 4, 2, 1))
 
 ## compare with ML estimates
 
@@ -629,20 +618,21 @@ prima.log $ post.ml.rs <-
               cov.y = prima.log $ ml.Pmat [, , i]) [, 1]
     }, .parallel = TRUE)
 
+# save(prima.log, file = 'Primates/log.RData')
+
 post.ml.df <- data.frame('id' = prima.aux $ models $ GSP,
                          'ssize' = as.integer(prima.aux $ models [, 'SSIZE']), 
                          'it' = prima.log $ post.ml.rs)
 
+
 post.ml.df <- gather(post.ml.df, key = id, value = value, -id, -ssize) [, -3]
 
 pdf('box_post_ml.pdf', width = 12, height = 7)
-
 ggplot(post.ml.df) +
     geom_boxplot(aes(x = id, y = value, fill = ssize)) +
     theme_bw() +
     theme(axis.text.x = element_text(angle = 90, size = 3)) +
     scale_fill_continuous(trans = 'log')
-
 dev.off(dev.cur())
 
 pdf('sag_mat.pdf', width = 14, height = 7)
@@ -650,3 +640,120 @@ par(mfrow = c(1, 2))
 color2D.matplot(cov2cor(prima.log $ post.Pmat [, , 74, 'Saguinus_midas']))
 color2D.matplot(cov2cor(prima.log $ ml.Pmat [, , 'Saguinus_midas']))
 dev.off(dev.cur())
+
+dimnames(prima.lory $ ml.Pmat) [[3]] <- prima.aux $ models $ GSP
+
+## geomnorm
+
+prima.gn <- list()
+
+prima.gn $ raw <- prima.ed $ geo.norm [, -29] # - APETTS
+
+prima.gn $ pca <- prcomp(prima.gn $ raw[, -1], retx = TRUE)
+
+grad <- colorRampPalette(brewer.pal(8, "Spectral"), space="Lab")
+
+ggsave(
+    'primate_gn.pdf',
+    width = 18, height = 10, 
+    plot = data.frame(
+        gen = prima.info $ GEN, 
+        prima.gn $ pca $ x [, 1:2]) %>%
+        ggplot(., aes(x = PC1, y = PC2, color = gen, group = gen)) +
+        geom_point() +
+        stat_ellipse() +
+        theme_bw() +
+        scale_color_manual('Genus', values = grad(length(unique(prima.info $ GEN)))) +
+        guides(color = guide_legend(ncol = 3))
+    )
+
+registerDoMC(cores = 142)
+
+prima.gn $ post.Pmat <- 
+    aaply(as.character(prima.aux $ models $ GSP), 1,
+          function(cur.sp)
+          {
+              cur.data <- prima.gn $ raw [prima.info $ GSP == cur.sp, ]
+              
+              cur.mod <- prima.aux $ models $ MOD [prima.aux $ models $ GSP == cur.sp]
+              
+              cur.info <- subset(prima.info, GSP == cur.sp)
+              
+              cur.Pmat <-
+                  PmatrixPosterior(data = cur.data,
+                                   model = cur.mod,
+                                   info = cur.info,
+                                   modelpath = '../Stan/pmatrix_lm_norm.stan',
+                                   full.output = FALSE,
+                                   thin = 10)             
+              cur.Pmat
+          }, .parallel = TRUE)
+
+dimnames(prima.gn $ post.Pmat) [[1]] <- as.character(prima.aux $ models $ GSP)
+
+dimnames(prima.gn $ post.Pmat)[[3]] <-
+    dimnames(prima.gn $ post.Pmat)[[4]] <-
+    colnames(prima.lory $ local)
+
+prima.gn $ post.Pmat <- aperm(prima.gn $ post.Pmat, c(3, 4, 2, 1))
+
+## compare with ML estimates
+
+ml.Pmat <-
+    aaply(as.matrix(prima.aux $ models), 1,
+          function(spandmodel)
+          {
+              ## type III sum of squares
+              options(contrasts = c('contr.sum', 'contr.poly'))
+              
+              sp <- spandmodel [1]
+              model <- spandmodel [2]
+              
+              info <- subset(prima.info, GSP == sp)
+              
+              data <- prima.gn $ raw [prima.info $ GSP == sp, ]
+              
+              if(model == 'NONE')
+                  form <- as.formula('~ 1')
+              else
+                  form <- as.formula(paste('~', model))
+              
+              modmat <- model.matrix(form, data = info)
+              
+              CalculateMatrix(lm(data ~ modmat))
+          }, .parallel = TRUE)
+
+prima.gn $ ml.Pmat <- aperm(ml.Pmat, c(2, 3, 1))
+
+dimnames(prima.gn $ ml.Pmat)[[3]] <- as.character(prima.aux $ models [, 'GSP'])
+
+prima.gn $ post.ml.rs <-
+    aaply(1:142, 1, function(i)
+    {
+        aaply(prima.gn $ post.Pmat [, , , i], 3, RandomSkewers,
+              cov.y = prima.gn $ ml.Pmat [, , i]) [, 1]
+    }, .parallel = TRUE)
+
+save(prima.gn, file = 'Primates/gn.RData')
+
+post.ml.df <- data.frame('id' = prima.aux $ models $ GSP,
+                         'ssize' = as.integer(prima.aux $ models [, 'SSIZE']), 
+                         'it' = prima.gn $ post.ml.rs)
+
+post.ml.df <- gather(post.ml.df, key = id, value = value, -id, -ssize) [, -3]
+
+pdf('box_post_ml.pdf', width = 12, height = 7)
+ggplot(post.ml.df) +
+    geom_boxplot(aes(x = id, y = value, fill = ssize)) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, size = 3)) +
+    scale_fill_continuous(trans = 'log')
+dev.off(dev.cur())
+
+pdf('sag_mat.pdf', width = 14, height = 7)
+par(mfrow = c(1, 2))
+color2D.matplot(cov2cor(prima.gn $ post.Pmat [, , 74, 'Saguinus_midas']))
+color2D.matplot(cov2cor(prima.gn $ ml.Pmat [, , 'Saguinus_midas']))
+dev.off(dev.cur())
+
+save(prima.aux, file = 'Primates/newaux.RData')
