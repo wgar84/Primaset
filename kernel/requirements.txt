@@ -1,0 +1,6 @@
+sqlalchemy
+sqlalchemy-utils
+psycopg2
+rpy2
+simplegeneric
+pyreadr

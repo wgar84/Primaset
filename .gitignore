@@ -1,5 +1,6 @@
-Raw Data\*
-Raw Code\*
+data
+raw_data
+output
 *.Rproj.user
 *.Rhistory
 *.RData
@@ -9,3 +10,4 @@ src/*.o
 src/*.so
 src/*.dll
 .Rproj.user
+*.pdf
